@@ -1,0 +1,227 @@
+[
+  {
+    "annonceId": "ann_5c61407c",
+    "ownerId": "usr_85059d430371",
+    "vitrineId": "vit_18cfb4cbd52b",
+    "vitrineSlug": "@vitrine_de_guerie_bt_d6a6",
+    "slug": "@chemises-c52d",
+    "title": "Chemises ",
+    "description": "Chemises blanches ",
+    "price": 12,
+    "images": [
+      "https://via.placeholder.com/300"
+    ],
+    "createdAt": "2025-12-09T20:53:19.271Z",
+    "updatedAt": "2025-12-09T20:53:19.271Z"
+  },
+  {
+    "annonceId": "ann_7cf09d6b",
+    "ownerId": "usr_85059d430371",
+    "vitrineId": "vit_18cfb4cbd52b",
+    "vitrineSlug": "@vitrine_de_guerie_bt_d6a6",
+    "slug": "@nike-9553",
+    "title": "Nike",
+    "description": "Airforce",
+    "price": 15,
+    "images": [
+      "https://via.placeholder.com/300"
+    ],
+    "createdAt": "2025-12-09T21:17:31.020Z",
+    "updatedAt": "2025-12-09T21:17:31.020Z"
+  },
+  {
+    "annonceId": "ann_b9abf539",
+    "ownerId": "usr_85059d430371",
+    "vitrineId": "vit_18cfb4cbd52b",
+    "vitrineSlug": "@vitrine_de_guerie_bt_d6a6",
+    "slug": "@boule-1c28",
+    "title": "Boule",
+    "description": "Boule",
+    "price": 20,
+    "images": [
+      "https://via.placeholder.com/300"
+    ],
+    "createdAt": "2025-12-09T21:29:22.817Z",
+    "updatedAt": "2025-12-09T21:29:22.817Z"
+  },
+  {
+    "annonceId": "ann_6282105f",
+    "ownerId": "usr_7048fdadd143",
+    "vitrineId": "vit_688264ff0f72",
+    "vitrineSlug": "@vitrine_de_guerie_aa28",
+    "slug": "@nike-3e34",
+    "title": "Nike",
+    "description": "Air force ",
+    "price": 28,
+    "images": [
+      "https://via.placeholder.com/300"
+    ],
+    "createdAt": "2025-12-10T07:04:51.408Z",
+    "updatedAt": "2025-12-10T07:04:51.408Z"
+  },
+  {
+    "annonceId": "ann_79ecfbf3",
+    "ownerId": "usr_7048fdadd143",
+    "vitrineId": "vit_688264ff0f72",
+    "vitrineSlug": "@vitrine_de_guerie_aa28",
+    "slug": "@polo-1f10",
+    "title": "Polo",
+    "description": "Polo",
+    "price": 5,
+    "images": [
+      "https://via.placeholder.com/300"
+    ],
+    "createdAt": "2025-12-10T07:12:51.680Z",
+    "updatedAt": "2025-12-10T07:12:51.680Z"
+  },
+  {
+    "annonceId": "ann_cc3cd274",
+    "ownerId": "usr_7048fdadd143",
+    "vitrineId": "vit_688264ff0f72",
+    "vitrineSlug": "@vitrine_de_guerie_aa28",
+    "slug": "@chaussures-b88c",
+    "title": "Chaussures ",
+    "description": "Loubu",
+    "price": 50,
+    "images": [
+      "https://via.placeholder.com/300"
+    ],
+    "createdAt": "2025-12-10T07:14:25.052Z",
+    "updatedAt": "2025-12-10T07:14:25.052Z"
+  },
+  {
+    "annonceId": "ann_9146d6ed",
+    "ownerId": "usr_7048fdadd143",
+    "vitrineId": "vit_688264ff0f72",
+    "vitrineSlug": "@vitrine_de_guerie_aa28",
+    "slug": "@polo-blanc-e73f",
+    "title": "Polo blanc ",
+    "description": "Polo Lacoste ",
+    "price": 6,
+    "images": [
+      "https://via.placeholder.com/300"
+    ],
+    "createdAt": "2025-12-10T07:20:53.087Z",
+    "updatedAt": "2025-12-10T07:20:53.087Z"
+  },
+  {
+    "annonceId": "ann_ff816f5b",
+    "ownerId": "usr_7048fdadd143",
+    "vitrineId": "vit_688264ff0f72",
+    "vitrineSlug": "@vitrine_de_guerie_aa28",
+    "slug": "@polo-lacoste-6a18",
+    "title": "Polo Lacoste ",
+    "description": "Polo",
+    "price": 20,
+    "images": [
+      "https://via.placeholder.com/300"
+    ],
+    "createdAt": "2025-12-10T07:22:29.052Z",
+    "updatedAt": "2025-12-10T07:22:29.052Z"
+  },
+  {
+    "annonceId": "ann_0797cc20",
+    "ownerId": "usr_7048fdadd143",
+    "vitrineId": "vit_688264ff0f72",
+    "vitrineSlug": "@vitrine_de_guerie_aa28",
+    "slug": "@t-shirt-3916",
+    "title": "T-shirt ",
+    "description": "Plongez ",
+    "price": 10,
+    "images": [
+      "https://via.placeholder.com/300"
+    ],
+    "createdAt": "2025-12-10T07:47:17.804Z",
+    "updatedAt": "2025-12-10T07:47:17.804Z"
+  },
+  {
+    "annonceId": "ann_2d031e40",
+    "ownerId": "usr_7048fdadd143",
+    "vitrineId": "vit_688264ff0f72",
+    "vitrineSlug": "@vitrine_de_guerie_aa28",
+    "slug": "@bol-2f54",
+    "title": "Bol",
+    "description": "Bol",
+    "price": 2,
+    "images": [
+      "https://via.placeholder.com/300"
+    ],
+    "createdAt": "2025-12-10T09:48:35.692Z",
+    "updatedAt": "2025-12-10T09:48:35.692Z"
+  },
+  {
+    "annonceId": "ann_aec55ea9",
+    "ownerId": "usr_7048fdadd143",
+    "vitrineId": "vit_688264ff0f72",
+    "vitrineSlug": "@vitrine_de_guerie_aa28",
+    "slug": "@polo-1fa8",
+    "title": "Polo",
+    "description": "Polo",
+    "price": 4,
+    "images": [
+      "https://via.placeholder.com/300"
+    ],
+    "createdAt": "2025-12-10T09:49:06.115Z",
+    "updatedAt": "2025-12-10T09:49:06.115Z"
+  },
+  {
+    "annonceId": "ann_e1a10a4a",
+    "ownerId": "usr_7048fdadd143",
+    "vitrineId": "vit_688264ff0f72",
+    "vitrineSlug": "@vitrine_de_guerie_aa28",
+    "slug": "@jean-fe78",
+    "title": "Jean",
+    "description": "Jean black ",
+    "price": 7,
+    "images": [
+      "https://via.placeholder.com/300"
+    ],
+    "createdAt": "2025-12-10T09:49:48.653Z",
+    "updatedAt": "2025-12-10T09:49:48.653Z"
+  },
+  {
+    "annonceId": "ann_fdf10854",
+    "ownerId": "usr_7048fdadd143",
+    "vitrineId": "vit_688264ff0f72",
+    "vitrineSlug": "@vitrine_de_guerie_aa28",
+    "slug": "@polo-c392",
+    "title": "Polo",
+    "description": "Polo",
+    "price": 10,
+    "images": [
+      "https://via.placeholder.com/300"
+    ],
+    "createdAt": "2025-12-10T16:09:01.509Z",
+    "updatedAt": "2025-12-10T16:09:01.509Z"
+  },
+  {
+    "annonceId": "ann_03453f09",
+    "ownerId": "usr_7048fdadd143",
+    "vitrineId": "vit_688264ff0f72",
+    "vitrineSlug": "@Andyshop",
+    "slug": "@polo-bc36",
+    "title": "Polo",
+    "description": "Polo",
+    "price": 5,
+    "images": [
+      "https://via.placeholder.com/300"
+    ],
+    "createdAt": "2025-12-10T17:05:40.976Z",
+    "updatedAt": "2025-12-10T17:05:40.976Z"
+  },
+  {
+    "annonceId": "ann_4a192e6c",
+    "ownerId": "usr_7048fdadd143",
+    "vitrineId": "vit_688264ff0f72",
+    "vitrineSlug": "@Andyshop",
+    "slug": "@chemises-08c4",
+    "title": "Chemises ",
+    "description": "Blanche ",
+    "price": 10,
+    "images": [
+      "https://via.placeholder.com/300"
+    ],
+    "createdAt": "2025-12-10T17:06:35.578Z",
+    "updatedAt": "2025-12-10T17:06:35.578Z"
+  }
+]

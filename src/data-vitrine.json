@@ -1,0 +1,50 @@
+[
+  {
+    "vitrineId": "vit_044219e7af62",
+    "slug": "@vitrine_de_guerie_bt_708e",
+    "ownerId": "usr_f777e9e25439",
+    "name": "Vitrine de Guerie BT",
+    "type": "general",
+    "description": "",
+    "avatar": "",
+    "coverImage": "",
+    "createdAt": "2025-12-06T11:19:11.663Z",
+    "updatedAt": "2025-12-06T11:19:11.663Z"
+  },
+  {
+    "vitrineId": "vit_c82912efccff",
+    "slog": "@andy_shop_59bb",
+    "ownerId": "usr_f777e9e25439",
+    "name": "Andy shop",
+    "type": "general",
+    "description": "Application Mobil market place,vitrine d'exposition et réseau social ",
+    "avatar": "",
+    "coverImage": "",
+    "createdAt": "2025-12-06T11:21:20.627Z",
+    "updatedAt": "2025-12-06T11:21:20.627Z"
+  },
+  {
+    "vitrineId": "vit_d997e1a7f583",
+    "slog": "@vitrine_de_guerie_e095",
+    "ownerId": "usr_400ac86891ed",
+    "name": "Vitrine de Guerie ",
+    "type": "general",
+    "description": "",
+    "avatar": "",
+    "coverImage": "",
+    "createdAt": "2025-12-09T19:50:45.082Z",
+    "updatedAt": "2025-12-09T19:50:45.084Z"
+  },
+  {
+    "vitrineId": "vit_bc8efd4be3fa",
+    "slog": "@vitrine_de_guerie_c21b",
+    "ownerId": "usr_c1e312071b66",
+    "name": "Vitrine de Guerie ",
+    "type": "general",
+    "description": "",
+    "avatar": "",
+    "coverImage": "",
+    "createdAt": "2025-12-09T20:04:41.820Z",
+    "updatedAt": "2025-12-09T20:04:41.820Z"
+  }
+]
