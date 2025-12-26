@@ -5,8 +5,8 @@ const router = express.Router();
 const authMiddleware = require('../middlewares/userMiddlewares/authMiddleware');
 
 // Controllers
-const createVitrineController = require('../controllers/vitrineControllers/createvitrinecontroller');
-const updateVitrineController = require('../controllers/vitrineControllers/updatevitrineController');
+const createVitrineController = require('../controllers/vitrineControllers/createVitrineController');
+const updateVitrineController = require('../controllers/vitrineControllers/updateVitrineController');
 const deleteVitrineController = require('../controllers/vitrineControllers/deleteVitrineController');
 const getVitrineBySlogController = require('../controllers/vitrineControllers/getVitrineBySlogController');
 const getAllVitrinesForOwnerController = require('../controllers/vitrineControllers/getAllVitrinesForOwnerController');

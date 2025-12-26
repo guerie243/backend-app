@@ -1,4 +1,4 @@
-const createvitrine = require('../../services/vitrineServices/createvitrineService');
+const createvitrine = require('../../services/vitrineServices/createVitrineService');
 
 const createVitrineController = async (req, res) => {
   try {
