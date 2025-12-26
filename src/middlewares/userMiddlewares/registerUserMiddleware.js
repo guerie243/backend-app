@@ -1,4 +1,4 @@
-const { registerUserController } = require("../../controllers/userControllers");
+// Import supprimé pour éviter dépendance circulaire
 
 const registerUserMiddleware = (req, res, next) => {
   try {
@@ -6,8 +6,8 @@ const registerUserMiddleware = (req, res, next) => {
 
     // 1. Vérifier la présence des champs obligatoires
     if (!profileName || !password || (!email && !phoneNumber)) {
-      return res.status(400).json({ 
-        message: "Le nom de profil, le mot de passe et au moins un moyen de contact (email ou téléphone) sont obligatoires." 
+      return res.status(400).json({
+        message: "Le nom de profil, le mot de passe et au moins un moyen de contact (email ou téléphone) sont obligatoires."
       });
     }
 
@@ -22,21 +22,21 @@ const registerUserMiddleware = (req, res, next) => {
     // 3. Vérifier le format du téléphone si fourni (STRICT : seulement chiffres et signe '+')
     if (phoneNumber) {
       // NOUVELLE REGEX : commence par un '+' optionnel, suivi de 6 à 20 chiffres, sans espaces ni tirets.
-      const phoneRegex = /^\+?\d{6,20}$/; 
-      
+      const phoneRegex = /^\+?\d{6,20}$/;
+
       if (!phoneRegex.test(phoneNumber.trim())) {
-        return res.status(400).json({ 
-          message: "Numéro de téléphone invalide. Veuillez inclure le code pays, et n'utilisez pas d'espaces ni de tirets." 
+        return res.status(400).json({
+          message: "Numéro de téléphone invalide. Veuillez inclure le code pays, et n'utilisez pas d'espaces ni de tirets."
         });
       }
     }
 
     // 4. Vérifier le mot de passe (Minimum 8 caractères, Majuscule, Minuscule, Chiffre)
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d!@#$%^&*()_+\-=[\]{}|;:'",.<>?]{8,100}$/;
-    
+
     if (!passwordRegex.test(password)) {
-      return res.status(400).json({ 
-        message: "Mot de passe invalide. Il doit contenir entre 8 et 100 caractères, et inclure au moins : une majuscule, une minuscule et un chiffre." 
+      return res.status(400).json({
+        message: "Mot de passe invalide. Il doit contenir entre 8 et 100 caractères, et inclure au moins : une majuscule, une minuscule et un chiffre."
       });
     }
 
