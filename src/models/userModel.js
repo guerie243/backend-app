@@ -51,7 +51,15 @@ class UserModel {
           snapshot = await usersCollection.where("phoneNumber", "==", cond.phoneNumber).limit(1).get();
         } else if (cond.username) {
           snapshot = await usersCollection.where("username", "==", cond.username).limit(1).get();
+        } else if (cond._id) {
+          // Supports finding by ID (string or number depending on storage, assuming string from AuthMiddleware)
+          const docRef = usersCollection.doc(cond._id.toString());
+          const docSnapshot = await docRef.get();
+          if (docSnapshot.exists) {
+            return docSnapshot.data();
+          }
         }
+
         if (snapshot && !snapshot.empty) {
           return snapshot.docs[0].data();
         }
