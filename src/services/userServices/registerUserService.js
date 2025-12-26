@@ -3,7 +3,7 @@ const hashPassword = require("../../utils/hashPassword");
 const generateToken = require("../../utils/generateTokenJWT");
 const generateUsername = require("../../utils/generateUsername");
 const generateUserId = require("../../utils/generateUserId");
-const createVitrineService = require('../vitrineServices/createVitrineService');
+const createVitrineService = require('../vitrineServices/createvitrineService');
 
 
 const registerUserService = async ({ profileName, email, phoneNumber, password }) => {
