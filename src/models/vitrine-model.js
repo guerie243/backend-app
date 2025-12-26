@@ -58,6 +58,14 @@ const VitrinesModel = {
     return snap.docs.map(d => d.data());
   },
 
+  getAll: async () => {
+    const snap = await db.collection(COLLECTION)
+      .orderBy('createdAt', 'desc')
+      .get();
+
+    return snap.docs.map(d => d.data());
+  },
+
   /* =========================
      RECHERCHE / FEED
   ========================== */
