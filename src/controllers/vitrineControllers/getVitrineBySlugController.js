@@ -1,4 +1,4 @@
-const getVitrineBySlugService = require('../../services/vitrineServices/getVitrineBySlogService');
+const getVitrineBySlugService = require('../../services/vitrineServices/getVitrineBySlugService');
 
 const getVitrineBySlugController = async (req, res) => {
     const { slug } = req.params;

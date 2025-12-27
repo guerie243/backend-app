@@ -38,8 +38,9 @@ const VitrinesModel = {
     return snap.empty ? null : snap.docs[0].data();
   },
 
-  findBySlog: async (slog) => {
-    return await VitrinesModel.findBySlug(slog);
+  /* @deprecated Use findBySlug instead */
+  findBySlog: async (slug) => {
+    return await VitrinesModel.findBySlug(slug);
   },
 
   findByVitrineId: async (vitrineId) => {
@@ -103,8 +104,9 @@ const VitrinesModel = {
     return snap.empty;
   },
 
-  isSlogUnique: async (slog) => {
-    return await VitrinesModel.isSlugUnique(slog);
+  /* @deprecated Use isSlugUnique instead */
+  isSlogUnique: async (slug) => {
+    return await VitrinesModel.isSlugUnique(slug);
   },
 
   isVitrineIdUnique: async (vitrineId) => {

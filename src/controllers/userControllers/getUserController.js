@@ -11,6 +11,7 @@ const getPublicUserController = async (req, res) => {
 
     res.status(200).json({ message: 'Utilisateur public récupéré', user });
   } catch (error) {
+    console.error(`[getPrivateUserController] Error for userId ${req.user.userId}:`, error);
     res.status(404).json({ message: error.message });
   }
 };
@@ -27,6 +28,7 @@ const getPrivateUserController = async (req, res) => {
 
     res.status(200).json({ message: 'Profil récupéré', user });
   } catch (error) {
+    console.error(`[getPrivateUserController] Error for userId ${req.user.userId}:`, error);
     res.status(404).json({ message: error.message });
   }
 };

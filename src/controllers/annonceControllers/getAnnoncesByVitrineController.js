@@ -22,7 +22,13 @@ const getAnnoncesByVitrineController = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Erreur lors de la récupération des annonces de vitrine:", error.message);
+        console.error("Erreur lors de la récupération des annonces de vitrine:", error);
+
+        // Check for Firestore Index requirement
+        if (error.code === 9 || error.message.includes('requires an index')) {
+            console.error("🚨 FIRESTORE INDEX MISSING 🚨");
+            console.error("Please create the index using the link in the error above or in the Firebase Console.");
+        }
 
         // --- Gestion des erreurs typées du Service ---
 

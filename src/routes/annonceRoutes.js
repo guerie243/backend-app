@@ -11,7 +11,7 @@ const createAnnonceController = require('../controllers/annonceControllers/creat
 const updateAnnonceController = require('../controllers/annonceControllers/updateAnnonceController');
 const deleteAnnonceController = require('../controllers/annonceControllers/deleteAnnonceController');
 const getAnnonceBySlugController = require('../controllers/annonceControllers/getAnnonceBySlugController');
-const getAnnoncesByVitrineController = require('../controllers/annonceControllers/getAnnoncesByVitrineSlogController');
+const getAnnoncesByVitrineController = require('../controllers/annonceControllers/getAnnoncesByVitrineController');
 const getFeedController = require('../controllers/annonceControllers/getFeedController');
 
 // Routes des annonces

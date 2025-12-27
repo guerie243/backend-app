@@ -8,7 +8,7 @@ const authMiddleware = require('../middlewares/userMiddlewares/authMiddleware');
 const createVitrineController = require('../controllers/vitrineControllers/createVitrineController');
 const updateVitrineController = require('../controllers/vitrineControllers/updateVitrineController');
 const deleteVitrineController = require('../controllers/vitrineControllers/deleteVitrineController');
-const getVitrineBySlogController = require('../controllers/vitrineControllers/getVitrineBySlogController');
+const getVitrineBySlugController = require('../controllers/vitrineControllers/getVitrineBySlugController');
 const getAllVitrinesForOwnerController = require('../controllers/vitrineControllers/getAllVitrinesForOwnerController');
 const getAllVitrinesController = require('../controllers/vitrineControllers/getAllVitrinesController');
 
@@ -38,6 +38,6 @@ router.delete('/myvitrine/:slug', authMiddleware, deleteVitrineController);
 
 // Obtenir une vitrine par slug (public)
 // GET /vitrines/:slug
-router.get('/:slug', getVitrineBySlogController);
+router.get('/:slug', getVitrineBySlugController);
 
 module.exports = router;

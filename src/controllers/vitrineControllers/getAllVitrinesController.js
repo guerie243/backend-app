@@ -23,6 +23,10 @@ const getAllVitrinesController = async (req, res) => {
 
     } catch (error) {
         console.error("Erreur getAllVitrinesController:", error);
+        // Check for Firestore Index requirement
+        if (error.code === 9 || error.message.includes('requires an index')) {
+            console.error("🚨 FIRESTORE INDEX MISSING 🚨");
+        }
         return res.status(500).json({
             success: false,
             message: error.message || "Erreur lors de la récupération des vitrines."
