@@ -15,9 +15,16 @@ const getFeedService = async ({
     let annonces = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
     if (categorieId) {
-        annonces = annonces.filter(a =>
-            a.vitrineCategory && a.vitrineCategory.toLowerCase() === categorieId.toLowerCase()
-        );
+        console.log(`[getFeedService] Filtering by categorieId: "${categorieId}"`);
+        const initialCount = annonces.length;
+        annonces = annonces.filter(a => {
+            const match = a.vitrineCategory && a.vitrineCategory.toLowerCase() === categorieId.toLowerCase();
+            if (!match && a.vitrineCategory) {
+                // console.log(`[getFeedService] No match: "${a.vitrineCategory}" !== "${categorieId}"`);
+            }
+            return match;
+        });
+        console.log(`[getFeedService] Filtered from ${initialCount} to ${annonces.length} annonces.`);
     }
 
     // Filtrage par recherche (côté serveur pour l'instant car Firestore ne supporte pas le LIKE)
