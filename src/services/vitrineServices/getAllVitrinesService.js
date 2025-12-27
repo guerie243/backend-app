@@ -9,8 +9,10 @@ const getAllVitrinesService = async ({ category, search, page = 1, limit = 6 } =
 
   if (search?.trim()) {
     const searchLower = search.toLowerCase().trim();
-    vitrines = vitrines.filter(v => 
-      v.name?.toLowerCase().includes(searchLower) || v.description?.toLowerCase().includes(searchLower)
+    vitrines = vitrines.filter(v =>
+      v.name?.toLowerCase().includes(searchLower) ||
+      v.description?.toLowerCase().includes(searchLower) ||
+      v.type?.toLowerCase().includes(searchLower)
     );
   }
 

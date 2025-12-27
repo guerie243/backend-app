@@ -25,7 +25,7 @@ const createAnnonceService = async ({
 }) => {
 
     // 🔒 Vérification propriété vitrine
-    const { ownerId, vitrineId } = await verifyVitrineOwnership(userId, vitrineSlug);
+    const { ownerId, vitrineId, vitrineCategory } = await verifyVitrineOwnership(userId, vitrineSlug);
 
     // 🔑 IDs uniques
     const annonceId = await generateUniqueAnnonceId(id =>
@@ -59,6 +59,7 @@ const createAnnonceService = async ({
         description: description ?? '',
         price: price ?? null,
         currency: currency ?? 'USD',
+        vitrineCategory: vitrineCategory || 'general',
         images: Array.isArray(images) ? images : [],
         locations: typeof locations === 'string'
             ? locations.split(',').map(l => l.trim()).filter(Boolean)

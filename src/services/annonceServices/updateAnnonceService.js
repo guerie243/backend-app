@@ -36,6 +36,7 @@ const updateAnnonceService = async (slug, userId, updates) => {
     delete updates.ownerId;
     delete updates.vitrineId;
     delete updates.vitrineSlug;
+    delete updates.vitrineCategory;
 
     if (updates.locations && typeof updates.locations === 'string') {
         updates.locations = updates.locations.split(',').map(l => l.trim()).filter(Boolean);

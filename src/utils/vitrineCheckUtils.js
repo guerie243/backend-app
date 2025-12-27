@@ -8,7 +8,8 @@ const verifyVitrineOwnership = async (userId, vitrineSlug) => {
   return {
     ownerId: vitrine.ownerId,
     vitrineId: vitrine.vitrineId,
-    vitrineSlug: vitrine.slug
+    vitrineSlug: vitrine.slug,
+    vitrineCategory: vitrine.type
   };
 };
 

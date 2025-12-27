@@ -24,7 +24,23 @@ const updateVitrineService = {
     const updates = { ...updateData, slug: newSlug, updatedAt: new Date().toISOString() };
     allowedFields.forEach(f => { if (!(f in updates)) delete updates[f]; });
 
-    return await VitrinesModel.updateBySlug(slug, updates);
+    const result = await VitrinesModel.updateBySlug(slug, updates);
+
+    // Si le type a changé, on propage aux annonces
+    if (updates.type && updates.type !== vitrine.type) {
+      const AnnonceModel = require('../../models/annonceModel');
+      const db = require('firebase-admin').firestore();
+      const annoncesSnap = await db.collection('Annonces').where('vitrineSlug', '==', result.slug).get();
+      if (!annoncesSnap.empty) {
+        const batch = db.batch();
+        annoncesSnap.docs.forEach(doc => {
+          batch.update(doc.ref, { vitrineCategory: updates.type });
+        });
+        await batch.commit();
+      }
+    }
+
+    return result;
   }
 };
 
