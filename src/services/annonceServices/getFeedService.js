@@ -15,7 +15,9 @@ const getFeedService = async ({
     let annonces = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
     if (categorieId) {
-        annonces = annonces.filter(a => a.vitrineCategory === categorieId);
+        annonces = annonces.filter(a =>
+            a.vitrineCategory && a.vitrineCategory.toLowerCase() === categorieId.toLowerCase()
+        );
     }
 
     // Filtrage par recherche (côté serveur pour l'instant car Firestore ne supporte pas le LIKE)
