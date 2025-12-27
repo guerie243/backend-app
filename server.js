@@ -50,10 +50,12 @@ app.get('/health', (req, res) => {
 
 // Middleware de gestion des erreurs 404
 app.use((req, res) => {
+  console.warn(`[404] ${req.method} ${req.originalUrl}`);
   res.status(404).json({
     success: false,
     message: 'Route non trouvée',
     path: req.path,
+    originalUrl: req.originalUrl,
     method: req.method
   });
 });
@@ -72,5 +74,16 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`✅ Serveur lancé sur le port ${PORT}`);
   console.log(`📍 URL: http://localhost:${PORT}`);
-  console.log(`🏥 Health check: http://localhost:${PORT}/health`);
+
+  // Log des routes enregistrées pour le débogage
+  console.log("=== ROUTES ENREGISTRÉES ===");
+  const printRoutes = (path, layer) => {
+    if (layer.route) {
+      layer.route.stack.forEach(s => console.log(`[${s.method.toUpperCase()}] ${path}${layer.route.path}`));
+    } else if (layer.name === 'router' && layer.handle.stack) {
+      layer.handle.stack.forEach(s => printRoutes(`${path}${layer.regexp.source.replace('^\\', '').replace('\\/?(?=\\/|$)', '')}`, s));
+    }
+  };
+  app._router.stack.forEach(layer => printRoutes('', layer));
+  console.log("===========================");
 });
