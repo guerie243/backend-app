@@ -4,35 +4,44 @@ const db = admin.firestore();
 const COLLECTION = 'Annonces';
 
 const getFeedService = async ({
-    limit = 10,
-    lastCreatedAt = null
+    page = 1,
+    limit = 20,
+    categorieId = null,
+    recherche = null
 } = {}) => {
+    let query = db.collection(COLLECTION).orderBy('createdAt', 'desc');
 
-    let query = db
-        .collection(COLLECTION)
-        .orderBy('createdAt', 'desc')
-        .limit(limit);
-
-    if (lastCreatedAt) {
-        query = query.startAfter(lastCreatedAt);
+    if (categorieId) {
+        query = query.where('category', '==', categorieId);
     }
 
     const snapshot = await query.get();
+    let annonces = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-    const annonces = snapshot.docs.map(doc => doc.data());
+    // Filtrage par recherche (côté serveur pour l'instant car Firestore ne supporte pas le LIKE)
+    if (recherche) {
+        const searchLower = recherche.toLowerCase().trim();
+        annonces = annonces.filter(a =>
+            (a.title && a.title.toLowerCase().includes(searchLower)) ||
+            (a.description && a.description.toLowerCase().includes(searchLower)) ||
+            (Array.isArray(a.locations) && a.locations.some(l => l.toLowerCase().includes(searchLower)))
+        );
+    }
 
-    const lastDoc =
-        snapshot.docs.length > 0
-            ? snapshot.docs[snapshot.docs.length - 1].get('createdAt')
-            : null;
+    // Pagination manuelle pour le flux filtré
+    const total = annonces.length;
+    const start = (page - 1) * limit;
+    const end = start + limit;
+    const paginatedAnnonces = annonces.slice(start, end);
 
     return {
         success: true,
-        data: annonces,
+        data: paginatedAnnonces,
         pagination: {
+            total,
+            page,
             limit,
-            lastCreatedAt: lastDoc,
-            hasNextPage: annonces.length === limit
+            hasNextPage: end < total
         }
     };
 };
