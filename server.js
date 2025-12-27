@@ -27,10 +27,18 @@ app.use(express.urlencoded({ extended: true }));
 const userRoutes = require('./src/routes/userRoutes');
 const vitrineRoutes = require('./src/routes/vitrineRoutes');
 const annonceRoutes = require('./src/routes/annonceRoutes');
-// Connexion des routes
-app.use('/vitrines', vitrineRoutes); // Routes des vitrines
-app.use('/users', userRoutes);       // Routes des utilisateurs
-app.use('/annonces', annonceRoutes); // Routes des annonces
+
+// Création d'un routeur API pour regrouper toutes les routes
+const apiRouter = express.Router();
+
+// Connexion des routes au routeur API
+apiRouter.use('/vitrines', vitrineRoutes); // Routes des vitrines
+apiRouter.use('/users', userRoutes);       // Routes des utilisateurs
+apiRouter.use('/annonces', annonceRoutes); // Routes des annonces
+
+// Montage du routeur API sur '/' et '/api' pour gérer les différentes configurations de Base URL
+app.use('/', apiRouter);
+app.use('/api', apiRouter);
 // Route de santé pour tester le serveur
 app.get('/health', (req, res) => {
   res.status(200).json({
