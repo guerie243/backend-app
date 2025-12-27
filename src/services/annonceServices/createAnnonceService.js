@@ -60,7 +60,9 @@ const createAnnonceService = async ({
         price: price ?? null,
         currency: currency ?? 'USD',
         images: Array.isArray(images) ? images : [],
-        locations: Array.isArray(locations) ? locations : [],
+        locations: typeof locations === 'string'
+            ? locations.split(',').map(l => l.trim()).filter(Boolean)
+            : (Array.isArray(locations) ? locations : []),
 
         // 🔍 Champs Firestore Search
         titleLower,

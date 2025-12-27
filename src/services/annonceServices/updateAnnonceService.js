@@ -18,6 +18,10 @@ const updateAnnonceService = async (slug, userId, updates) => {
     delete updates.vitrineId;
     delete updates.vitrineSlug;
 
+    if (updates.locations && typeof updates.locations === 'string') {
+        updates.locations = updates.locations.split(',').map(l => l.trim()).filter(Boolean);
+    }
+
     return AnnonceModel.update(slug, updates);
 };
 
