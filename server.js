@@ -74,16 +74,4 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`✅ Serveur lancé sur le port ${PORT}`);
   console.log(`📍 URL: http://localhost:${PORT}`);
-
-  // Log des routes enregistrées pour le débogage
-  console.log("=== ROUTES ENREGISTRÉES ===");
-  const printRoutes = (path, layer) => {
-    if (layer.route) {
-      layer.route.stack.forEach(s => console.log(`[${s.method.toUpperCase()}] ${path}${layer.route.path}`));
-    } else if (layer.name === 'router' && layer.handle.stack) {
-      layer.handle.stack.forEach(s => printRoutes(`${path}${layer.regexp.source.replace('^\\', '').replace('\\/?(?=\\/|$)', '')}`, s));
-    }
-  };
-  app._router.stack.forEach(layer => printRoutes('', layer));
-  console.log("===========================");
 });
