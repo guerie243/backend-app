@@ -64,11 +64,14 @@ const registerUserService = async ({ profileName, email, phoneNumber, password }
         });
 
         const safeUser = {
-            ...newUser._doc,
-            userId: newUser._id
+            userId: newUser._id,
+            profileName: newUser.profileName,
+            username: newUser.username,
+            email: newUser.email,
+            phoneNumber: newUser.phoneNumber,
+            bio: newUser.bio,
+            profilePhoto: newUser.profilePhoto
         };
-        delete safeUser.password;
-        delete safeUser._id;
 
         return {
             success: true,
@@ -76,6 +79,7 @@ const registerUserService = async ({ profileName, email, phoneNumber, password }
             token,
             user: safeUser
         };
+
 
     } catch (error) {
         console.error("Erreur service registerUser:", error);

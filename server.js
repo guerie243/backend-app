@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 // Import des configurations (ceci charge dotenv)
 require('./src/config/config');
+const { connectToDatabase } = require('./src/config/db');
 
 // Création de l'application Express
 const app = express();
@@ -70,8 +71,19 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Lancement du serveur
-app.listen(PORT, () => {
-  console.log(`✅ Serveur lancé sur le port ${PORT}`);
-  console.log(`📍 URL: http://localhost:${PORT}`);
-});
+// Lancement du serveur après connexion à la base de données
+const startServer = async () => {
+  try {
+    await connectToDatabase();
+    app.listen(PORT, () => {
+      console.log(`✅ Serveur lancé sur le port ${PORT}`);
+      console.log(`📍 URL: http://localhost:${PORT}`);
+    });
+  } catch (error) {
+    console.error("❌ Échec du démarrage du serveur en raison d'une erreur de base de données:", error.message);
+    process.exit(1);
+  }
+};
+
+startServer();
+

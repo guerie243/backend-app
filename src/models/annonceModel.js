@@ -1,25 +1,19 @@
-const admin = require('firebase-admin');
-const { FIREBASE_SERVICE_ACCOUNT } = require('../config/config');
+const { getDb } = require('../config/db');
 
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert(JSON.parse(FIREBASE_SERVICE_ACCOUNT))
-  });
-}
-
-const db = admin.firestore();
 const COLLECTION = 'Annonces';
 
 const AnnonceModel = {
+
+  getCollection: () => {
+    return getDb().collection(COLLECTION);
+  },
 
   /* =========================
      CREATE
   ========================== */
   create: async (annonce) => {
-    await db.collection(COLLECTION).doc(annonce.annonceId).set({
-      ...annonce,
-      annonceId: annonce.annonceId // ⚠️ ID aussi dans les champs
-    });
+    const data = { ...annonce, _id: annonce.annonceId };
+    await AnnonceModel.getCollection().insertOne(data);
     return annonce;
   },
 
@@ -27,131 +21,136 @@ const AnnonceModel = {
      UPDATE
   ========================== */
   update: async (slug, updates) => {
-    const snap = await db.collection(COLLECTION)
-      .where('slug', '==', slug)
-      .limit(1)
-      .get();
+    const result = await AnnonceModel.getCollection().findOneAndUpdate(
+      { slug: slug },
+      {
+        $set: {
+          ...updates,
+          updatedAt: new Date().toISOString()
+        }
+      },
+      { returnDocument: 'after' }
+    );
 
-    if (snap.empty) return null;
-
-    const docRef = snap.docs[0].ref;
-
-    await docRef.update({
-      ...updates,
-      updatedAt: new Date().toISOString()
-    });
-
-    return (await docRef.get()).data();
+    return result ? result : null;
   },
 
   /* =========================
      DELETE
   ========================== */
   delete: async (slug) => {
-    const snap = await db.collection(COLLECTION)
-      .where('slug', '==', slug)
-      .limit(1)
-      .get();
+    const doc = await AnnonceModel.findBySlug(slug);
+    if (!doc) return null;
 
-    if (snap.empty) return null;
-
-    const data = snap.docs[0].data();
-    await snap.docs[0].ref.delete();
-    return data;
+    await AnnonceModel.getCollection().deleteOne({ slug: slug });
+    return doc;
   },
 
   /* =========================
      FIND ONE
   ========================== */
   findBySlug: async (slug) => {
-    const snap = await db.collection(COLLECTION)
-      .where('slug', '==', slug)
-      .limit(1)
-      .get();
-
-    return snap.empty ? null : snap.docs[0].data();
+    return await AnnonceModel.getCollection().findOne({ slug: slug });
   },
 
   /* =========================
      FEED GLOBAL (PAGINATION CURSOR)
-     → Page d’accueil
   ========================== */
   getFeed: async ({ limit = 10, cursor = null }) => {
-    let query = db.collection(COLLECTION)
-      .orderBy('createdAt', 'desc')
-      .limit(limit);
-
+    let query = {};
     if (cursor) {
-      const cursorDoc = await db.collection(COLLECTION).doc(cursor).get();
-      if (cursorDoc.exists) {
-        query = query.startAfter(cursorDoc);
+      const cursorDoc = await AnnonceModel.getCollection().findOne({ _id: cursor });
+      if (cursorDoc) {
+        query = {
+          $or: [
+            { createdAt: { $lt: cursorDoc.createdAt } },
+            { createdAt: cursorDoc.createdAt, _id: { $lt: cursorDoc._id } }
+          ]
+        };
       }
     }
 
-    const snap = await query.get();
+    const results = await AnnonceModel.getCollection()
+      .find(query)
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .toArray();
 
     return {
-      data: snap.docs.map(d => d.data()),
-      nextCursor: snap.docs.length ? snap.docs[snap.docs.length - 1].id : null
+      data: results,
+      nextCursor: results.length ? results[results.length - 1]._id : null
     };
   },
 
   /* =========================
      FEED PAR VITRINE
-     (pagination optimisée)
   ========================== */
   getByVitrineSlug: async ({ vitrineSlug, limit = 10, cursor = null }) => {
-    let query = db.collection(COLLECTION)
-      .where('vitrineSlug', '==', vitrineSlug)
-      .orderBy('createdAt', 'desc')
-      .limit(limit);
+    let query = { vitrineSlug: vitrineSlug };
 
     if (cursor) {
-      const cursorDoc = await db.collection(COLLECTION).doc(cursor).get();
-      if (cursorDoc.exists) {
-        query = query.startAfter(cursorDoc);
+      const cursorDoc = await AnnonceModel.getCollection().findOne({ _id: cursor });
+      if (cursorDoc) {
+        query = {
+          ...query,
+          $or: [
+            { createdAt: { $lt: cursorDoc.createdAt } },
+            { createdAt: cursorDoc.createdAt, _id: { $lt: cursorDoc._id } }
+          ]
+        };
       }
     }
 
-    const snap = await query.get();
+    const results = await AnnonceModel.getCollection()
+      .find(query)
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .toArray();
 
     return {
-      data: snap.docs.map(d => d.data()),
-      nextCursor: snap.docs.length ? snap.docs[snap.docs.length - 1].id : null
+      data: results,
+      nextCursor: results.length ? results[results.length - 1]._id : null
     };
   },
 
   /* =========================
      RECHERCHE
-     (title + description)
   ========================== */
   search: async ({ queryText, limit = 10, cursor = null }) => {
-    // Firestore ne supporte pas LIKE
-    // 👉 On prépare pour recherche frontend / index externe plus tard
-
-    let query = db.collection(COLLECTION)
-      .orderBy('createdAt', 'desc')
-      .limit(limit);
+    // MongoDB supporte nativement le $regex
+    let query = {
+      $or: [
+        { title: { $regex: queryText, $options: 'i' } },
+        { description: { $regex: queryText, $options: 'i' } }
+      ]
+    };
 
     if (cursor) {
-      const cursorDoc = await db.collection(COLLECTION).doc(cursor).get();
-      if (cursorDoc.exists) {
-        query = query.startAfter(cursorDoc);
+      const cursorDoc = await AnnonceModel.getCollection().findOne({ _id: cursor });
+      if (cursorDoc) {
+        query = {
+          ...query,
+          $and: [
+            {
+              $or: [
+                { createdAt: { $lt: cursorDoc.createdAt } },
+                { createdAt: cursorDoc.createdAt, _id: { $lt: cursorDoc._id } }
+              ]
+            }
+          ]
+        };
       }
     }
 
-    const snap = await query.get();
-
-    const filtered = snap.docs
-      .map(d => d.data())
-      .filter(a =>
-        a.title.toLowerCase().includes(queryText.toLowerCase()) ||
-        a.description.toLowerCase().includes(queryText.toLowerCase())
-      );
+    const results = await AnnonceModel.getCollection()
+      .find(query)
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .toArray();
 
     return {
-      data: filtered,
-      nextCursor: snap.docs.length ? snap.docs[snap.docs.length - 1].id : null
+      data: results,
+      nextCursor: results.length ? results[results.length - 1]._id : null
     };
   },
 
@@ -159,29 +158,20 @@ const AnnonceModel = {
      UNIQUENESS
   ========================== */
   isSlugUnique: async (slug) => {
-    const snap = await db.collection(COLLECTION)
-      .where('slug', '==', slug)
-      .limit(1)
-      .get();
-    return snap.empty;
+    const count = await AnnonceModel.getCollection().countDocuments({ slug: slug }, { limit: 1 });
+    return count === 0;
   },
 
   isAnnonceIdUnique: async (annonceId) => {
-    const doc = await db.collection(COLLECTION).doc(annonceId).get();
-    return !doc.exists;
+    const count = await AnnonceModel.getCollection().countDocuments({ _id: annonceId }, { limit: 1 });
+    return count === 0;
   },
 
   /* =========================
      DELETE OWNER DATA
   ========================== */
   deleteAllByOwnerId: async (ownerId) => {
-    const snap = await db.collection(COLLECTION)
-      .where('ownerId', '==', ownerId)
-      .get();
-
-    const batch = db.batch();
-    snap.docs.forEach(doc => batch.delete(doc.ref));
-    await batch.commit();
+    await AnnonceModel.getCollection().deleteMany({ ownerId: ownerId });
   }
 };
 

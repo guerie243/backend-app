@@ -1,10 +1,11 @@
 const UserModel = require("../../models/userModel");
 const comparePassword = require("../../utils/comparePassword");
 const hashPassword = require("../../utils/hashPassword");
+const { getDb } = require("../../config/db");
 
 async function updateUserProfile(userId, updateData) {
     try {
-        const user = await UserModel.findOne({ $or: [{ _id: userId }] });
+        const user = await UserModel.findOne({ _id: userId });
         if (!user) throw new Error("Utilisateur non trouvé");
 
         // Mot de passe
@@ -31,10 +32,9 @@ async function updateUserProfile(userId, updateData) {
             if (updateData[field] !== undefined) user[field] = updateData[field];
         }
 
-        // Mise à jour Firestore
-        const admin = require("firebase-admin");
-        const db = admin.firestore();
-        await db.collection("Users").doc(userId.toString()).set({ ...user });
+        // Mise à jour MongoDB
+        const collection = getDb().collection("Users");
+        await collection.replaceOne({ _id: userId }, user);
 
         const { password: pwd, _id, ...safeUser } = user;
         return safeUser;

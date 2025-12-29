@@ -1,28 +1,20 @@
-const admin = require('firebase-admin');
-const { FIREBASE_SERVICE_ACCOUNT } = require('../config/config');
+const { getDb } = require('../config/db');
 
-if (!admin.apps.length && FIREBASE_SERVICE_ACCOUNT) {
-  try {
-    admin.initializeApp({
-      credential: admin.credential.cert(JSON.parse(FIREBASE_SERVICE_ACCOUNT))
-    });
-  } catch (err) {
-    console.error("Firebase initialization error in vitrine-model:", err.message);
-  }
-}
-
-const db = admin.firestore();
 const COLLECTION = 'Vitrines';
 
 const VitrinesModel = {
+
+  getCollection: () => {
+    return getDb().collection(COLLECTION);
+  },
 
   /* =========================
      CREATION
   ========================== */
   create: async (vitrine) => {
-    await db.collection(COLLECTION)
-      .doc(vitrine.vitrineId)
-      .set(vitrine);
+    // Preserve use of vitrineId as the document identifier
+    const data = { ...vitrine, _id: vitrine.vitrineId };
+    await VitrinesModel.getCollection().insertOne(data);
     return vitrine;
   },
 
@@ -30,12 +22,7 @@ const VitrinesModel = {
      LECTURE
   ========================== */
   findBySlug: async (slug) => {
-    const snap = await db.collection(COLLECTION)
-      .where('slug', '==', slug)
-      .limit(1)
-      .get();
-
-    return snap.empty ? null : snap.docs[0].data();
+    return await VitrinesModel.getCollection().findOne({ slug: slug });
   },
 
   /* @deprecated Use findBySlug instead */
@@ -44,51 +31,58 @@ const VitrinesModel = {
   },
 
   findByVitrineId: async (vitrineId) => {
-    const doc = await db.collection(COLLECTION)
-      .doc(vitrineId)
-      .get();
-
-    return doc.exists ? doc.data() : null;
+    return await VitrinesModel.getCollection().findOne({ _id: vitrineId });
   },
 
   getByOwnerId: async (ownerId) => {
-    const snap = await db.collection(COLLECTION)
-      .where('ownerId', '==', ownerId)
-      .get();
-
-    return snap.docs.map(d => d.data());
+    return await VitrinesModel.getCollection().find({ ownerId: ownerId }).toArray();
   },
 
   getAll: async () => {
-    const snap = await db.collection(COLLECTION)
-      .orderBy('createdAt', 'desc')
-      .get();
-
-    return snap.docs.map(d => d.data());
+    return await VitrinesModel.getCollection()
+      .find({})
+      .sort({ createdAt: -1 })
+      .toArray();
   },
 
   /* =========================
      RECHERCHE / FEED
   ========================== */
   getActiveVitrines: async (limit = 20, startAfter = null) => {
-    let query = db.collection(COLLECTION)
-      .where('isActive', '==', true)
-      .orderBy('createdAt', 'desc')
+    let query = { isActive: true };
+
+    // Firestore pagination startAfter works on a document snapshot.
+    // For MongoDB, if startAfter is an ID, we assume we want items created before that date or after that ID.
+    // Given the original code used createdAt desc, we'll try to find the startAfter doc first.
+
+    let findQuery = VitrinesModel.getCollection()
+      .find(query)
+      .sort({ createdAt: -1 })
       .limit(limit);
 
     if (startAfter) {
-      const cursorDoc = await db.collection(COLLECTION)
-        .doc(startAfter)
-        .get();
-      if (cursorDoc.exists) {
-        query = query.startAfter(cursorDoc);
+      const cursorDoc = await VitrinesModel.getCollection().findOne({ _id: startAfter });
+      if (cursorDoc) {
+        // Find documents with createdAt < cursorDoc.createdAt (since it's desc)
+        // or matches createdAt but has an ID < cursorDoc._id for stable sorting.
+        findQuery = VitrinesModel.getCollection()
+          .find({
+            ...query,
+            $or: [
+              { createdAt: { $lt: cursorDoc.createdAt } },
+              { createdAt: cursorDoc.createdAt, _id: { $lt: cursorDoc._id } }
+            ]
+          })
+          .sort({ createdAt: -1 })
+          .limit(limit);
       }
     }
 
-    const snap = await query.get();
+    const results = await findQuery.toArray();
+
     return {
-      vitrines: snap.docs.map(d => d.data()),
-      hasMore: snap.docs.length === limit
+      vitrines: results,
+      hasMore: results.length === limit
     };
   },
 
@@ -96,12 +90,8 @@ const VitrinesModel = {
      UNICITE
   ========================== */
   isSlugUnique: async (slug) => {
-    const snap = await db.collection(COLLECTION)
-      .where('slug', '==', slug)
-      .limit(1)
-      .get();
-
-    return snap.empty;
+    const count = await VitrinesModel.getCollection().countDocuments({ slug: slug }, { limit: 1 });
+    return count === 0;
   },
 
   /* @deprecated Use isSlugUnique instead */
@@ -110,31 +100,26 @@ const VitrinesModel = {
   },
 
   isVitrineIdUnique: async (vitrineId) => {
-    const doc = await db.collection(COLLECTION)
-      .doc(vitrineId)
-      .get();
-
-    return !doc.exists;
+    const count = await VitrinesModel.getCollection().countDocuments({ _id: vitrineId }, { limit: 1 });
+    return count === 0;
   },
 
   /* =========================
      UPDATE
   ========================== */
   updateBySlug: async (slug, updates) => {
-    const snap = await db.collection(COLLECTION)
-      .where('slug', '==', slug)
-      .limit(1)
-      .get();
+    const result = await VitrinesModel.getCollection().findOneAndUpdate(
+      { slug: slug },
+      {
+        $set: {
+          ...updates,
+          updatedAt: new Date().toISOString()
+        }
+      },
+      { returnDocument: 'after' }
+    );
 
-    if (snap.empty) return null;
-
-    const ref = snap.docs[0].ref;
-    await ref.update({
-      ...updates,
-      updatedAt: new Date().toISOString()
-    });
-
-    return (await ref.get()).data();
+    return result ? result : null;
   },
 
   update: async (slug, updates) => {
@@ -145,29 +130,18 @@ const VitrinesModel = {
      DELETE
   ========================== */
   deleteBySlug: async (slug) => {
-    const snap = await db.collection(COLLECTION)
-      .where('slug', '==', slug)
-      .limit(1)
-      .get();
+    const doc = await VitrinesModel.findBySlug(slug);
+    if (!doc) return null;
 
-    if (snap.empty) return null;
-
-    const data = snap.docs[0].data();
-    await snap.docs[0].ref.delete();
-    return data;
+    await VitrinesModel.getCollection().deleteOne({ slug: slug });
+    return doc;
   },
 
   /* =========================
      DATA MANAGEMENT
   ========================== */
   deleteAllByOwnerId: async (ownerId) => {
-    const snap = await db.collection(COLLECTION)
-      .where('ownerId', '==', ownerId)
-      .get();
-
-    const batch = db.batch();
-    snap.docs.forEach(doc => batch.delete(doc.ref));
-    await batch.commit();
+    await VitrinesModel.getCollection().deleteMany({ ownerId: ownerId });
   }
 };
 

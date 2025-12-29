@@ -4,7 +4,10 @@ const getAllVitrinesService = async ({ category, search, page = 1, limit = 6 } =
   let vitrines = await VitrinesModel.getAll();
 
   if (category && category !== 'all') {
-    vitrines = vitrines.filter(v => v.type?.toLowerCase() === category.toLowerCase());
+    vitrines = vitrines.filter(v => {
+      const vCat = v.category || v.type;
+      return vCat?.toLowerCase() === category.toLowerCase();
+    });
   }
 
   if (search?.trim()) {
@@ -12,7 +15,7 @@ const getAllVitrinesService = async ({ category, search, page = 1, limit = 6 } =
     vitrines = vitrines.filter(v =>
       v.name?.toLowerCase().includes(searchLower) ||
       v.description?.toLowerCase().includes(searchLower) ||
-      v.type?.toLowerCase().includes(searchLower)
+      (v.category || v.type)?.toLowerCase().includes(searchLower)
     );
   }
 

@@ -1,5 +1,4 @@
-const admin = require('firebase-admin');
-const db = admin.firestore();
+const { getDb } = require('../../config/db');
 
 const COLLECTION = 'Annonces';
 
@@ -9,50 +8,55 @@ const getFeedService = async ({
     categorieId = null,
     recherche = null
 } = {}) => {
-    let query = db.collection(COLLECTION).orderBy('createdAt', 'desc');
+    try {
+        const db = getDb();
+        const collection = db.collection(COLLECTION);
 
-    const snapshot = await query.get();
-    let annonces = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        let query = {};
 
-    if (categorieId) {
-        console.log(`[getFeedService] Filtering by categorieId: "${categorieId}"`);
-        const initialCount = annonces.length;
-        annonces = annonces.filter(a => {
-            const match = a.vitrineCategory && a.vitrineCategory.toLowerCase() === categorieId.toLowerCase();
-            if (!match && a.vitrineCategory) {
-                // console.log(`[getFeedService] No match: "${a.vitrineCategory}" !== "${categorieId}"`);
-            }
-            return match;
-        });
-        console.log(`[getFeedService] Filtered from ${initialCount} to ${annonces.length} annonces.`);
-    }
-
-    // Filtrage par recherche (côté serveur pour l'instant car Firestore ne supporte pas le LIKE)
-    if (recherche) {
-        const searchLower = recherche.toLowerCase().trim();
-        annonces = annonces.filter(a =>
-            (a.title && a.title.toLowerCase().includes(searchLower)) ||
-            (a.description && a.description.toLowerCase().includes(searchLower)) ||
-            (Array.isArray(a.locations) && a.locations.some(l => l.toLowerCase().includes(searchLower)))
-        );
-    }
-
-    // Pagination manuelle pour le flux filtré
-    const total = annonces.length;
-    const start = (page - 1) * limit;
-    const end = start + limit;
-    const paginatedAnnonces = annonces.slice(start, end);
-
-    return {
-        success: true,
-        data: paginatedAnnonces,
-        pagination: {
-            total,
-            page,
-            limit,
-            hasNextPage: end < total
+        // Filtrage par catégorie
+        if (categorieId) {
+            // Utilisation d'une regex insensible à la casse pour correspondre au comportement précédent
+            query.vitrineCategory = { $regex: `^${categorieId}$`, $options: 'i' };
         }
-    };
+
+        // Filtrage par recherche
+        if (recherche) {
+            const searchLower = recherche.trim();
+            query.$or = [
+                { title: { $regex: searchLower, $options: 'i' } },
+                { description: { $regex: searchLower, $options: 'i' } },
+                { locations: { $elemMatch: { $regex: searchLower, $options: 'i' } } }
+            ];
+        }
+
+        const total = await collection.countDocuments(query);
+        const skip = (page - 1) * limit;
+
+        const annonces = await collection
+            .find(query)
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
+            .toArray();
+
+        // On remap _id vers id pour garder la compatibilité frontend si nécessaire
+        const mappedAnnonces = annonces.map(a => ({ id: a._id, ...a }));
+
+        return {
+            success: true,
+            data: mappedAnnonces,
+            pagination: {
+                total,
+                page,
+                limit,
+                hasNextPage: (skip + annonces.length) < total
+            }
+        };
+    } catch (error) {
+        console.error("Erreur getFeedService:", error);
+        return { success: false, message: "Erreur lors de la récupération du flux." };
+    }
 };
 
 module.exports = getFeedService;
