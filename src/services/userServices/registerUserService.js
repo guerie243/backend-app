@@ -50,7 +50,8 @@ const registerUserService = async ({ profileName, email, phoneNumber, password }
         });
 
         // --- 4. 🔥 Création automatique de la vitrine de l'utilisateur ---
-        await createVitrineService.createVitrine(newUser._id, {
+        console.log(`[registerUser] Création vitrine pour userId: ${userId}`);
+        await createVitrineService.createVitrine(userId, {
             name: `Vitrine de ${profileName}`,
             type: "general",
             description: "",
@@ -60,11 +61,11 @@ const registerUserService = async ({ profileName, email, phoneNumber, password }
 
         // --- 5. Token JWT ---
         const token = generateToken({
-            userId: newUser._id,
+            userId: userId,
         });
 
         const safeUser = {
-            userId: newUser._id,
+            userId: userId,
             profileName: newUser.profileName,
             username: newUser.username,
             email: newUser.email,

@@ -5,6 +5,9 @@ const router = express.Router();
 
 // Middlewares
 const authMiddleware = require('../middlewares/userMiddlewares/authMiddleware');
+const uploadMiddleware = require('../middlewares/uploadMiddleware');
+const imageUploadInterceptor = require('../middlewares/imageUploadInterceptor');
+const cacheMiddleware = require('../middlewares/cacheMiddleware');
 
 // Controllers (à créer ensuite)
 const createAnnonceController = require('../controllers/annonceControllers/createAnnonceController');
@@ -16,11 +19,11 @@ const getFeedController = require('../controllers/annonceControllers/getFeedCont
 
 // Routes des annonces
 // IMPORTANT: Les routes spécifiques doivent être définies AVANT les routes avec paramètres
-router.get('/feed', getFeedController);  // Récupérer le feed d'annonces (doit être avant /:slug)
-router.get('/vitrine/:vitrineSlug', getAnnoncesByVitrineController);  // Récupérer toutes les annonces d'une vitrine
-router.post('/', authMiddleware, createAnnonceController);   // Créer une annonce
-router.patch('/:slug', authMiddleware, updateAnnonceController);  // Mettre à jour une annonce
+router.get('/feed', cacheMiddleware, getFeedController);  // Récupérer le feed d'annonces (doit être avant /:slug)
+router.get('/vitrine/:vitrineSlug', cacheMiddleware, getAnnoncesByVitrineController);  // Récupérer toutes les annonces d'une vitrine
+router.post('/', authMiddleware, uploadMiddleware.array('images', 10), imageUploadInterceptor('annonces'), createAnnonceController);   // Créer une annonce
+router.patch('/:slug', authMiddleware, uploadMiddleware.array('images', 10), imageUploadInterceptor('annonces'), updateAnnonceController);  // Mettre à jour une annonce
 router.delete('/:slug', authMiddleware, deleteAnnonceController);  // Supprimer une annonce
-router.get('/:slug', getAnnonceBySlugController);  // Récupérer une annonce par son slug
+router.get('/:slug', cacheMiddleware, getAnnonceBySlugController);  // Récupérer une annonce par son slug
 
 module.exports = router;

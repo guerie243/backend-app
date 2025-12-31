@@ -6,6 +6,7 @@ const {
     ForbiddenError,
     APIError
 } = require('../../services/annonceServices/updateAnnonceService');
+const { invalidateAnnoncesCache } = require('../../utils/cache');
 
 // Expression régulière pour vérifier le format standard d'un slug : 
 // minuscules, chiffres, séparés par des tirets, peut commencer par @ (comme les vitrines ou annonces auto-générées)
@@ -34,6 +35,9 @@ const updateAnnonceController = async (req, res) => {
 
         // 3. Appel du service
         const updatedAnnonce = await updateAnnonceService(slug, userId, updates);
+
+        // 🔍 Invalider le cache car l'annonce a été mise à jour
+        invalidateAnnoncesCache();
 
         // 4. Succès
         return res.status(200).json({ success: true, annonce: updatedAnnonce });

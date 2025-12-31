@@ -1,5 +1,6 @@
 // controllers/vitrineControllers/deleteVitrineController.js
 const deleteVitrineService = require('../../services/vitrineServices/deleteVitrineService');
+const { invalidateVitrinesCache } = require('../../utils/cache');
 
 const deleteVitrineController = async (req, res) => {
     try {
@@ -14,6 +15,9 @@ const deleteVitrineController = async (req, res) => {
 
         // Appel du service pour supprimer la vitrine
         const deletedVitrine = await deleteVitrineService.deleteVitrine(ownerId, slug);
+
+        // Invalider le cache car la vitrine a été supprimée
+        invalidateVitrinesCache();
 
         // Utilisation du statut 204 No Content est une alternative sémantique pour une suppression réussie
         return res.status(200).json({

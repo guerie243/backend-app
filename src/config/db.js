@@ -18,8 +18,9 @@ async function connectToDatabase() {
 
     try {
         await client.connect();
-        db = client.db(); // Utilise la DB spécifiée dans l'URI ou par défaut
-        console.log("✅ Connecté avec succès à MongoDB Atlas");
+        const dbName = process.env.MONGODB_DB_NAME || 'AndyDB';
+        db = client.db(dbName); // Utilise la DB spécifiée ou AndyDB par défaut
+        console.log(`✅ Connecté avec succès à MongoDB Atlas (Base: ${dbName})`);
         return db;
     } catch (error) {
         console.error("❌ Erreur de connexion à MongoDB:", error.message);

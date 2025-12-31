@@ -18,6 +18,16 @@ const deleteVitrineService = {
     // --- 3. Supprimer la vitrine et gérer les erreurs DB ---
     try {
       const removedVitrine = await VitrinesModel.deleteBySlug(slug);
+
+      // Cleanup images from storage
+      const imageFields = ["avatar", "coverImage", "logo", "banner"];
+      const imageStorage = require('../../utils/imageStorage');
+      imageFields.forEach(field => {
+        if (removedVitrine[field]) {
+          imageStorage.delete(removedVitrine[field]).catch(err => console.error(`Error deleting ${field} on vitrine deletion:`, err));
+        }
+      });
+
       return removedVitrine;
     } catch (dbError) {
       console.error("Erreur de base de données lors de la suppression de la vitrine:", dbError);

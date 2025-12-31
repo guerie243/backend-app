@@ -24,6 +24,17 @@ const updateVitrineService = {
     const updates = { ...updateData, slug: newSlug, updatedAt: new Date().toISOString() };
     allowedFields.forEach(f => { if (!(f in updates)) delete updates[f]; });
 
+    // IMAGE REPLACEMENT LOGIC
+    const imageFields = ["avatar", "coverImage", "logo", "banner"];
+    const imageStorage = require('../../utils/imageStorage');
+
+    for (const field of imageFields) {
+      if (updates[field] && vitrine[field] && updates[field] !== vitrine[field]) {
+        // New image provided and it's different from the old one, cleanup old one
+        imageStorage.delete(vitrine[field]).catch(err => console.error(`Error deleting old ${field}:`, err));
+      }
+    }
+
     const result = await VitrinesModel.updateBySlug(slug, updates);
 
     // Si la catégorie a changé, on propage aux annonces

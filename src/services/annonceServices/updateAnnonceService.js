@@ -42,6 +42,25 @@ const updateAnnonceService = async (slug, userId, updates) => {
         updates.locations = updates.locations.split(',').map(l => l.trim()).filter(Boolean);
     }
 
+    // IMAGE REPLACEMENT LOGIC
+    // If new images are provided, we might want to cleanup the old ones 
+    // that are NOT in the new list.
+    if (updates.images && Array.isArray(updates.images)) {
+        const oldImages = annonce.images || [];
+        const newImages = updates.images;
+
+        // Find images that were in old list but NOT in new list
+        const imagesToDelete = oldImages.filter(url => !newImages.includes(url));
+
+        if (imagesToDelete.length > 0) {
+            const imageStorage = require('../utils/imageStorage');
+            // We don't necessarily await this to not block the response, 
+            // but for safety we can.
+            Promise.all(imagesToDelete.map(url => imageStorage.delete(url)))
+                .catch(err => console.error("Error deleting old images:", err));
+        }
+    }
+
     return AnnonceModel.update(slug, updates);
 };
 

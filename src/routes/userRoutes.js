@@ -24,10 +24,15 @@ Router.post(
     registerUserController
 );
 
+const uploadMiddleware = require('../middlewares/uploadMiddleware');
+const imageUploadInterceptor = require('../middlewares/imageUploadInterceptor');
+
 // 2️⃣ Modifier le profil utilisateur (PATCH /)
 Router.patch(
     '/',
     authMiddleware,
+    uploadMiddleware.single('profilePhoto'),
+    imageUploadInterceptor('users'),
     updateUserController
 );
 

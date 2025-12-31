@@ -1,6 +1,7 @@
 // controllers/annonceControllers/createAnnonceController.js (AMÉLIORÉ)
 
 const createAnnonceService = require('../../services/annonceServices/createAnnonceService');
+const { invalidateAnnoncesCache } = require('../../utils/cache');
 
 // Si vous exportez l'erreur du service pour une meilleure gestion:
 // const { UniqueConstraintError } = require('../../services/annonceServices/createAnnonceService');
@@ -11,18 +12,9 @@ const createAnnonceController = async (req, res) => {
         const userId = req.user.userId;
         const { vitrineSlug, title, description, price, locations, currency } = req.body;
 
-        // Gestion des images (Multer)
-        let images = [];
-        if (req.files && req.files.length > 0) {
-            images = req.files.map(file => {
-                // Construction de l'URL de l'image (adapter selon votre config serveur)
-                // Idéalement, utilisez une variable d'env pour l'hôte
-                return `${req.protocol}://${req.get('host')}/uploads/${file.filename}`;
-            });
-        } else if (req.body.images && Array.isArray(req.body.images)) {
-            // Fallback pour compatibilité JSON (si images envoyées en base64 ou URL directes)
-            images = req.body.images;
-        }
+        // Gestion des images (Désormais gérée par l'intercepteur)
+        // Les URLs sont déjà présentes dans req.body.images grâce au middleware
+        const images = req.body.images || [];
 
         // --- CORRECTION: Locations est une simple chaîne de caractères ---
         // frontend envoie "Paris, Lyon" (ou via FormData)
@@ -54,8 +46,15 @@ const createAnnonceController = async (req, res) => {
             currency
         });
 
+        // Invalider le cache car une nouvelle annonce a été créée
+        invalidateAnnoncesCache();
+
         // Succès
-        return res.status(201).json({ success: true, annonce });
+        return res.status(201).json({
+            success: true,
+            annonce,
+            warning: req.imageWarning || null
+        });
     } catch (error) {
         console.error("Erreur lors de la création de l'annonce:", error.message, error.stack);
 

@@ -1,4 +1,5 @@
 const updateVitrineService = require('../../services/vitrineServices/updateVitrineService');
+const { invalidateVitrinesCache } = require('../../utils/cache');
 
 const updateVitrine = async (req, res) => {
     try {
@@ -9,6 +10,9 @@ const updateVitrine = async (req, res) => {
 
         // Appel du service de mise à jour
         const updated = await updateVitrineService.updateVitrine(ownerId, slug, updateData);
+
+        // Invalider le cache car la vitrine a été mise à jour
+        invalidateVitrinesCache();
 
         return res.status(200).json({
             success: true,

@@ -27,6 +27,13 @@ const deleteAnnonceService = async (slug, userId) => {
     throw new ForbiddenError("Accès refusé.");
   }
 
+  // Cleanup images from storage
+  if (annonce.images && Array.isArray(annonce.images)) {
+    const imageStorage = require('../utils/imageStorage');
+    const deletePromises = annonce.images.map(url => imageStorage.delete(url));
+    await Promise.all(deletePromises);
+  }
+
   return AnnonceModel.delete(slug);
 };
 
