@@ -20,8 +20,16 @@ const updateVitrineService = {
       newSlug = updateData.slug;
     }
 
-    const allowedFields = ["name", "type", "category", "description", "avatar", "coverImage", "address", "contact", "logo", "banner"];
     const updates = { ...updateData, slug: newSlug, updatedAt: new Date().toISOString() };
+
+    // Unifier category et type si l'un des deux est fourni
+    if (updates.category || updates.type) {
+      const unifiedCat = updates.category || updates.type;
+      updates.category = unifiedCat;
+      updates.type = unifiedCat;
+    }
+
+    const allowedFields = ["name", "type", "category", "description", "avatar", "coverImage", "address", "contact", "logo", "banner"];
     allowedFields.forEach(f => { if (!(f in updates)) delete updates[f]; });
 
     // IMAGE REPLACEMENT LOGIC
