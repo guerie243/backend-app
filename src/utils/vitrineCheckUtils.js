@@ -9,7 +9,7 @@ const verifyVitrineOwnership = async (userId, vitrineSlug) => {
     ownerId: vitrine.ownerId,
     vitrineId: vitrine.vitrineId,
     vitrineSlug: vitrine.slug,
-    vitrineCategory: vitrine.type
+    vitrineCategory: vitrine.category || vitrine.type || 'Général'
   };
 };
 

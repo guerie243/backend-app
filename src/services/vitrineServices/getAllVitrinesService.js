@@ -3,7 +3,7 @@ const VitrinesModel = require('../../models/vitrine-model');
 const getAllVitrinesService = async ({ category, search, page = 1, limit = 6 } = {}) => {
   let vitrines = await VitrinesModel.getAll();
 
-  if (category && category !== 'all') {
+  if (category && category.toLowerCase() !== 'all') {
     vitrines = vitrines.filter(v => {
       const vCat = v.category || v.type;
       return vCat?.toLowerCase() === category.toLowerCase();

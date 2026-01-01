@@ -15,7 +15,7 @@ const getFeedService = async ({
         let query = {};
 
         // Filtrage par catégorie
-        if (categorieId) {
+        if (categorieId && categorieId.toLowerCase() !== 'all') {
             // Utilisation d'une regex insensible à la casse pour correspondre au comportement précédent
             query.vitrineCategory = { $regex: `^${categorieId}$`, $options: 'i' };
         }
