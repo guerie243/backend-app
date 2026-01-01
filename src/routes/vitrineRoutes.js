@@ -19,7 +19,7 @@ const getAllVitrinesController = require('../controllers/vitrineControllers/getA
 
 // Créer une vitrine (propriétaire uniquement)
 // POST /vitrines/
-router.post('/', authMiddleware, uploadMiddleware.single('image'), imageUploadInterceptor('vitrines'), createVitrineController);
+router.post('/', authMiddleware, uploadMiddleware.fields([{ name: 'logo', maxCount: 1 }, { name: 'coverImage', maxCount: 1 }]), imageUploadInterceptor('vitrines'), createVitrineController);
 
 // Obtenir toutes les vitrines du propriétaire connecté
 // GET /vitrines/my-vitrines
@@ -33,7 +33,7 @@ router.get('/', cacheMiddleware, getAllVitrinesController);
 
 // Modifier une vitrine par slug (propriétaire uniquement)
 // PATCH /vitrines/myvitrine/:slug
-router.patch('/myvitrine/:slug', authMiddleware, uploadMiddleware.single('image'), imageUploadInterceptor('vitrines'), updateVitrineController);
+router.patch('/myvitrine/:slug', authMiddleware, uploadMiddleware.fields([{ name: 'logo', maxCount: 1 }, { name: 'coverImage', maxCount: 1 }]), imageUploadInterceptor('vitrines'), updateVitrineController);
 
 // Supprimer une vitrine par slug (propriétaire uniquement)
 // DELETE /vitrines/myvitrine/:slug
