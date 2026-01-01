@@ -29,9 +29,14 @@ const deleteAnnonceService = async (slug, userId) => {
 
   // Cleanup images from storage
   if (annonce.images && Array.isArray(annonce.images)) {
-    const imageStorage = require('../utils/imageStorage');
-    const deletePromises = annonce.images.map(url => imageStorage.delete(url));
-    await Promise.all(deletePromises);
+    try {
+      const imageStorage = require('../../utils/imageStorage');
+      const deletePromises = annonce.images.map(url => imageStorage.delete(url));
+      await Promise.all(deletePromises);
+    } catch (imgError) {
+      console.error("Erreur suppression images (non-bloquant):", imgError);
+      // On continue la suppression de l'annonce même si les images échouent
+    }
   }
 
   return AnnonceModel.delete(slug);

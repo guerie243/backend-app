@@ -16,15 +16,21 @@ const createAnnonceController = async (req, res) => {
         // Les URLs sont déjà présentes dans req.body.images grâce au middleware
         const images = req.body.images || [];
 
-        // --- CORRECTION: Locations est une simple chaîne de caractères ---
-        // frontend envoie "Paris, Lyon" (ou via FormData)
-        // On ne force plus la conversion en tableau.
-        let parsedLocations = locations || '';
-        if (typeof locations !== 'string') {
-            // Si jamais on reçoit autre chose (ex: null), on assure une string
-            parsedLocations = '';
+        // --- CORRECTION: Locations peut être une string ou un array ---
+        let parsedLocations = [];
+        if (typeof locations === 'string') {
+            parsedLocations = [locations];
+        } else if (Array.isArray(locations)) {
+            parsedLocations = locations;
         }
-        // ----------------------------------------------------------------
+        // Le service attend un tableau ou une string, mais on va normaliser en array pour le service si possible
+        // ou laisser le service gérer. Le service `createAnnonceService.js` actuel logic:
+        // locations: typeof locations === 'string' ... else if (Array.isArray)
+        // Donc on peut passer raw `locations` si c'est string ou array.
+
+        let finalLocations = locations;
+        // Si c'est undefined/null -> empty array pour le service ?
+        if (!locations) finalLocations = [];
 
         if (!vitrineSlug) {
             return res.status(400).json({ success: false, message: "Le slug de la vitrine est requis pour créer une annonce." });
@@ -42,7 +48,7 @@ const createAnnonceController = async (req, res) => {
             description,
             price: parseFloat(price), // Assurer que le prix est un nombre
             images,
-            locations: parsedLocations,
+            locations: finalLocations,
             currency
         });
 
