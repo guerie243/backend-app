@@ -36,25 +36,6 @@ const updateVitrineService = {
     }
 
     const result = await VitrinesModel.updateBySlug(slug, updates);
-
-    // Si la catégorie a changé, on propage aux annonces
-    const oldCat = vitrine.category || vitrine.type;
-    const newCat = result.category || result.type;
-
-    if (newCat && newCat !== oldCat) {
-      console.log(`[updateVitrineService] Propagating category change: ${oldCat} -> ${newCat}`);
-      const db = require('firebase-admin').firestore();
-      const annoncesSnap = await db.collection('Annonces').where('vitrineSlug', '==', result.slug).get();
-      if (!annoncesSnap.empty) {
-        const batch = db.batch();
-        annoncesSnap.docs.forEach(doc => {
-          batch.update(doc.ref, { vitrineCategory: newCat });
-        });
-        await batch.commit();
-        console.log(`[updateVitrineService] Propagated to ${annoncesSnap.size} annonces.`);
-      }
-    }
-
     return result;
   }
 };
