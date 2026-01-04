@@ -43,7 +43,34 @@ const updateVitrineService = {
       }
     }
 
+    // DETECTION DES CHANGEMENTS POUR LA PROPAGATION
+    const categoryChanged = updates.category && updates.category !== vitrine.category;
+    const slugChanged = updates.slug && updates.slug !== vitrine.slug;
+
     const result = await VitrinesModel.updateBySlug(slug, updates);
+
+    // PROPAGATION AUX ANNONCES
+    if (result && (categoryChanged || slugChanged)) {
+      console.log(`[updateVitrineService] Propagating changes to annonces for vitrineId: ${vitrine.vitrineId}`);
+      const AnnonceModel = require('../../models/annonceModel');
+
+      const annonceUpdates = {};
+      if (categoryChanged) annonceUpdates.vitrineCategory = updates.category;
+      if (slugChanged) annonceUpdates.vitrineSlug = updates.slug;
+
+      try {
+        await AnnonceModel.getCollection().updateMany(
+          { vitrineId: vitrine.vitrineId },
+          { $set: annonceUpdates }
+        );
+        console.log(`[updateVitrineService] Propagation successful.`);
+      } catch (err) {
+        console.error(`[updateVitrineService] Error propagating to annonces:`, err);
+        // On ne bloque pas le retour car la vitrine a été mise à jour, 
+        // mais on log l'erreur.
+      }
+    }
+
     return result;
   }
 };

@@ -53,6 +53,7 @@ const registerUserService = async ({ profileName, email, phoneNumber, password }
         console.log(`[registerUser] Création vitrine pour userId: ${userId}`);
         await createVitrineService.createVitrine(userId, {
             name: `Vitrine de ${profileName}`,
+            category: "general",
             type: "general",
             description: "",
             avatar: "",
