@@ -24,7 +24,9 @@ const getVitrineBySlugService = async (slugOrId) => {
       vitrine = await VitrinesModel.findByVitrineId(slugOrId);
     } else {
       // C'est un slug (commence normalement par '@')
-      vitrine = await VitrinesModel.findBySlug(slugOrId);
+      // On décode pour gérer les cas où le @ est encodé en %40
+      const decodedSlug = decodeURIComponent(slugOrId);
+      vitrine = await VitrinesModel.findBySlug(decodedSlug);
     }
 
     if (vitrine) {
