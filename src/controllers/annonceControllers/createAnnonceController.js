@@ -10,7 +10,7 @@ const createAnnonceController = async (req, res) => {
     try {
         // Validation des données primaires
         const userId = req.user.userId;
-        const { vitrineSlug, title, description, price, locations, currency } = req.body;
+        const { vitrineId, vitrineSlug, title, description, price, locations, currency } = req.body;
 
         // Gestion des images (Désormais gérée par l'intercepteur)
         // Les URLs sont déjà présentes dans req.body.images grâce au middleware
@@ -32,8 +32,8 @@ const createAnnonceController = async (req, res) => {
         // Si c'est undefined/null -> empty array pour le service ?
         if (!locations) finalLocations = [];
 
-        if (!vitrineSlug) {
-            return res.status(400).json({ success: false, message: "Le slug de la vitrine est requis pour créer une annonce." });
+        if (!vitrineId && !vitrineSlug) {
+            return res.status(400).json({ success: false, message: "L'ID ou le slug de la vitrine est requis pour créer une annonce." });
         }
         if (!title || typeof title !== 'string' || title.trim().length === 0) {
             return res.status(400).json({ success: false, message: "Le titre de l'annonce est obligatoire et doit être non vide." });
@@ -43,6 +43,7 @@ const createAnnonceController = async (req, res) => {
         // Appel du service
         const annonce = await createAnnonceService({
             userId,
+            vitrineId,
             vitrineSlug,
             title,
             description,

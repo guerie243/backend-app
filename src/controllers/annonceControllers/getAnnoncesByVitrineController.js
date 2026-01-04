@@ -3,15 +3,15 @@ const getAnnoncesByVitrineService = require('../../services/annonceServices/getA
 
 const getAnnoncesByVitrineController = async (req, res) => {
     try {
-        const vitrineSlug = req.params.vitrineSlug;
+        const vitrineIdOrSlug = req.params.vitrineIdOrSlug;
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
 
-        if (!vitrineSlug) {
-            return res.status(400).json({ success: false, message: "Le slug de la vitrine est requis." });
+        if (!vitrineIdOrSlug) {
+            return res.status(400).json({ success: false, message: "L'ID ou le slug de la vitrine est requis." });
         }
 
-        const annonces = await getAnnoncesByVitrineService(vitrineSlug, page, limit);
+        const annonces = await getAnnoncesByVitrineService(vitrineIdOrSlug, page, limit);
 
         return res.status(200).json({
             success: true,

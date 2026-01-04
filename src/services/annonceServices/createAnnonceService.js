@@ -15,7 +15,8 @@ const buildSearchKeywords = (text = '') => {
 
 const createAnnonceService = async ({
     userId,
-    vitrineSlug,
+    vitrineId: providedVitrineId,
+    vitrineSlug: providedVitrineSlug,
     title,
     description,
     price,
@@ -24,8 +25,8 @@ const createAnnonceService = async ({
     currency
 }) => {
 
-    // 🔒 Vérification propriété vitrine
-    const { ownerId, vitrineId, vitrineCategory } = await verifyVitrineOwnership(userId, vitrineSlug);
+    // 🔒 Vérification propriété vitrine (on préfère l'ID si dispo, sinon le slug)
+    const { ownerId, vitrineId, vitrineSlug, vitrineCategory } = await verifyVitrineOwnership(userId, providedVitrineId || providedVitrineSlug);
 
     // 🔑 IDs uniques
     const annonceId = await generateUniqueAnnonceId(id =>

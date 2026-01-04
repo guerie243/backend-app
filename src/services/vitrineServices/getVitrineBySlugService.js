@@ -7,14 +7,24 @@ const generateWhatsAppLink = require('../../utils/generateWhatsAppLink');
  * @param {string} slug - Identifiant public de la vitrine
  * @returns {object|null} La vitrine nettoyée (sans _id) si trouvée, sinon null
  */
-const getVitrineBySlugService = async (slug) => {
-  if (!slug) {
+const getVitrineBySlugService = async (slugOrId) => {
+  if (!slugOrId) {
     // Erreur de validation levée pour le contrôleur
-    throw new Error("Le slug de la vitrine est requis.");
+    throw new Error("L'identifiant (slug ou ID) de la vitrine est requis.");
   }
 
   try {
-    const vitrine = await VitrinesModel.findBySlug(slug);
+    let vitrine;
+
+    // Si c'est un ID, on cherche par ID
+    if (slugOrId && slugOrId.includes('-')) {
+      vitrine = await VitrinesModel.findByVitrineId(slugOrId);
+    }
+
+    // Sinon ou si non trouvé, on cherche par slug
+    if (!vitrine) {
+      vitrine = await VitrinesModel.findBySlug(slugOrId);
+    }
 
     if (vitrine) {
       // 🔑 Nettoyage de l'objet avant le retour

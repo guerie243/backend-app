@@ -83,7 +83,38 @@ const AnnonceModel = {
   },
 
   /* =========================
-     FEED PAR VITRINE
+     FEED PAR VITRINE (ID)
+  ========================== */
+  getByVitrineId: async ({ vitrineId, limit = 10, cursor = null }) => {
+    let query = { vitrineId: vitrineId };
+
+    if (cursor) {
+      const cursorDoc = await AnnonceModel.getCollection().findOne({ _id: cursor });
+      if (cursorDoc) {
+        query = {
+          ...query,
+          $or: [
+            { createdAt: { $lt: cursorDoc.createdAt } },
+            { createdAt: cursorDoc.createdAt, _id: { $lt: cursorDoc._id } }
+          ]
+        };
+      }
+    }
+
+    const results = await AnnonceModel.getCollection()
+      .find(query)
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .toArray();
+
+    return {
+      data: results,
+      nextCursor: results.length ? results[results.length - 1]._id : null
+    };
+  },
+
+  /* =========================
+     FEED PAR VITRINE (SLUG) - Maintain for compatibility
   ========================== */
   getByVitrineSlug: async ({ vitrineSlug, limit = 10, cursor = null }) => {
     let query = { vitrineSlug: vitrineSlug };
@@ -172,6 +203,43 @@ const AnnonceModel = {
   ========================== */
   deleteAllByOwnerId: async (ownerId) => {
     await AnnonceModel.getCollection().deleteMany({ ownerId: ownerId });
+  },
+
+  /* =========================
+     LIKES MANAGEMENT
+  ========================== */
+  incrementLikes: async (slug) => {
+    const result = await AnnonceModel.getCollection().findOneAndUpdate(
+      { slug: slug },
+      {
+        $inc: { likes_count: 1 },
+        $set: { updatedAt: new Date().toISOString() }
+      },
+      { returnDocument: 'after' }
+    );
+    return result ? result : null;
+  },
+
+  decrementLikes: async (slug) => {
+    // First, get the current document to check likes_count
+    const doc = await AnnonceModel.findBySlug(slug);
+    if (!doc) return null;
+
+    // Only decrement if likes_count > 0
+    if ((doc.likes_count || 0) > 0) {
+      const result = await AnnonceModel.getCollection().findOneAndUpdate(
+        { slug: slug },
+        {
+          $inc: { likes_count: -1 },
+          $set: { updatedAt: new Date().toISOString() }
+        },
+        { returnDocument: 'after' }
+      );
+      return result ? result : null;
+    }
+
+    // If already 0, just return the document as is
+    return doc;
   }
 };
 
