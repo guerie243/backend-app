@@ -16,13 +16,14 @@ const getVitrineBySlugService = async (slugOrId) => {
   try {
     let vitrine;
 
-    // Si c'est un ID, on cherche par ID
-    if (slugOrId && slugOrId.includes('-')) {
+    // Détection basée sur le préfixe pour distinguer vitrineId et slug
+    // vitrineId format: vit_XXXXXXXXXXXX
+    // slug format: @name_XXXX
+    if (slugOrId && slugOrId.startsWith('vit_')) {
+      // C'est un vitrineId
       vitrine = await VitrinesModel.findByVitrineId(slugOrId);
-    }
-
-    // Sinon ou si non trouvé, on cherche par slug
-    if (!vitrine) {
+    } else {
+      // C'est un slug (commence normalement par '@')
       vitrine = await VitrinesModel.findBySlug(slugOrId);
     }
 
