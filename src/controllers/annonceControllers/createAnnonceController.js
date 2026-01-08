@@ -10,11 +10,13 @@ const createAnnonceController = async (req, res) => {
     try {
         // Validation des données primaires
         const userId = req.user.userId;
-        const { vitrineId, vitrineSlug, title, description, price, locations, currency } = req.body;
+        const { vitrineId, vitrineSlug, title, description, price, locations, currency, category } = req.body;
 
         // Gestion des images (Désormais gérée par l'intercepteur)
         // Les URLs sont déjà présentes dans req.body.images grâce au middleware
         const images = req.body.images || [];
+
+        console.log(`[createAnnonce] Tentative création pour vitrine: ${vitrineId || vitrineSlug}, titre: ${title}, catégorie: ${category}`);
 
         // --- CORRECTION: Locations peut être une string ou un array ---
         let parsedLocations = [];
@@ -23,10 +25,6 @@ const createAnnonceController = async (req, res) => {
         } else if (Array.isArray(locations)) {
             parsedLocations = locations;
         }
-        // Le service attend un tableau ou une string, mais on va normaliser en array pour le service si possible
-        // ou laisser le service gérer. Le service `createAnnonceService.js` actuel logic:
-        // locations: typeof locations === 'string' ... else if (Array.isArray)
-        // Donc on peut passer raw `locations` si c'est string ou array.
 
         let finalLocations = locations;
         // Si c'est undefined/null -> empty array pour le service ?
@@ -50,7 +48,8 @@ const createAnnonceController = async (req, res) => {
             price: parseFloat(price), // Assurer que le prix est un nombre
             images,
             locations: finalLocations,
-            currency
+            currency,
+            category
         });
 
         // Invalider le cache car une nouvelle annonce a été créée

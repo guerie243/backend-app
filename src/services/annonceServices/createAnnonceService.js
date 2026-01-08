@@ -22,7 +22,8 @@ const createAnnonceService = async ({
     price,
     images,
     locations,
-    currency
+    currency,
+    category
 }) => {
 
     // 🔒 Vérification propriété vitrine (on préfère l'ID si dispo, sinon le slug)
@@ -60,6 +61,7 @@ const createAnnonceService = async ({
         description: description ?? '',
         price: price ?? null,
         currency: currency ?? 'USD',
+        category: category || vitrineCategory || 'general',
         vitrineCategory: vitrineCategory || 'general',
         images: Array.isArray(images) ? images : [],
         locations: typeof locations === 'string'

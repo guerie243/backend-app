@@ -5,11 +5,11 @@ const verifyVitrineOwnership = async (userId, vitrineSlugOrId) => {
   let vitrine;
 
   // Try finding by ID first if it looks like an ID, otherwise try slug
-  if (vitrineSlugOrId && vitrineSlugOrId.includes('-')) {
+  if (vitrineSlugOrId && (vitrineSlugOrId.startsWith('vit_') || vitrineSlugOrId.includes('-'))) {
     vitrine = await VitrinesModel.findByVitrineId(vitrineSlugOrId);
   }
 
-  if (!vitrine) {
+  if (!vitrine && vitrineSlugOrId) {
     vitrine = await VitrinesModel.findBySlug(vitrineSlugOrId);
   }
 
