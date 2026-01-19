@@ -14,6 +14,7 @@ const deleteVitrineController = require('../controllers/vitrineControllers/delet
 const getVitrineBySlugController = require('../controllers/vitrineControllers/getVitrineBySlugController');
 const getAllVitrinesForOwnerController = require('../controllers/vitrineControllers/getAllVitrinesForOwnerController');
 const getAllVitrinesController = require('../controllers/vitrineControllers/getAllVitrinesController');
+const getVitrineByIdController = require('../controllers/vitrineControllers/getVitrineByIdController');
 
 // --- ROUTES VITRINES (MVP) ---
 
@@ -38,6 +39,11 @@ router.patch('/myvitrine/:slug', authMiddleware, uploadMiddleware.fields([{ name
 // Supprimer une vitrine par slug (propriétaire uniquement)
 // DELETE /vitrines/myvitrine/:slug
 router.delete('/myvitrine/:slug', authMiddleware, deleteVitrineController);
+
+// 🔔 Obtenir une vitrine par son ID (public, utilisé par Module 2 pour notifications)
+// GET /vitrines/id/:vitrineId
+// IMPORTANT : Doit être avant /:slug pour éviter conflits de routage
+router.get('/id/:vitrineId', cacheMiddleware, getVitrineByIdController);
 
 // Obtenir une vitrine par slug (public)
 // GET /vitrines/:slug

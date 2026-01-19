@@ -3,7 +3,7 @@ const { getDb } = require('../config/db');
 const COLLECTION = "Users";
 
 class UserModel {
-  constructor({ _id, profileName, username, email, phoneNumber, password, bio, profilePhoto }) {
+  constructor({ _id, profileName, username, email, phoneNumber, password, bio, profilePhoto, firebaseTokens, webPushSubscriptions }) {
     this._id = _id;
     this.profileName = profileName;
     this.username = username;
@@ -12,6 +12,9 @@ class UserModel {
     this.password = password;
     this.bio = bio || "";
     this.profilePhoto = profilePhoto || "";
+    // 🔔 Champs de notification
+    this.firebaseTokens = firebaseTokens || [];
+    this.webPushSubscriptions = webPushSubscriptions || [];
   }
 
   static getCollection() {
@@ -69,6 +72,49 @@ class UserModel {
 
     await collection.deleteOne({ _id: userId });
     return user;
+  }
+
+  // 🔔 Récupération des tokens de notification
+  static async getNotificationTokens(userId) {
+    const collection = this.getCollection();
+    const user = await collection.findOne(
+      { _id: userId },
+      { projection: { firebaseTokens: 1, webPushSubscriptions: 1 } }
+    );
+
+    if (!user) {
+      return { firebaseTokens: [], webPushSubscriptions: [] };
+    }
+
+    return {
+      firebaseTokens: user.firebaseTokens || [],
+      webPushSubscriptions: user.webPushSubscriptions || []
+    };
+  }
+
+  // 🔔 Ajout d'un token de notification
+  static async addNotificationToken(userId, type, tokenData) {
+    const collection = this.getCollection();
+
+    if (type === 'firebase') {
+      // Ajouter le token uniquement s'il n'existe pas déjà
+      await collection.updateOne(
+        { _id: userId },
+        { $addToSet: { firebaseTokens: tokenData } }
+      );
+    } else if (type === 'webpush') {
+      // Pour Web Push, remplacer si même endpoint (éviter doublons)
+      await collection.updateOne(
+        { _id: userId },
+        { $pull: { webPushSubscriptions: { endpoint: tokenData.endpoint } } }
+      );
+      await collection.updateOne(
+        { _id: userId },
+        { $push: { webPushSubscriptions: tokenData } }
+      );
+    }
+
+    return { success: true };
   }
 }
 

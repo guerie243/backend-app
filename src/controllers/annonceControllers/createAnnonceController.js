@@ -10,7 +10,7 @@ const createAnnonceController = async (req, res) => {
     try {
         // Validation des données primaires
         const userId = req.user.userId;
-        const { vitrineId, vitrineSlug, title, description, price, locations, currency, category } = req.body;
+        const { vitrineId, vitrineSlug, title, description, price, locations, currency, category, deliveryFee, productId } = req.body;
 
         // Gestion des images (Désormais gérée par l'intercepteur)
         // Les URLs sont déjà présentes dans req.body.images grâce au middleware
@@ -49,8 +49,11 @@ const createAnnonceController = async (req, res) => {
             images,
             locations: finalLocations,
             currency,
-            category
+            category,
+            deliveryFee,
+            productId
         });
+
 
         // Invalider le cache car une nouvelle annonce a été créée
         invalidateAnnoncesCache();

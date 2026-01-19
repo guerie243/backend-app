@@ -23,8 +23,11 @@ const createAnnonceService = async ({
     images,
     locations,
     currency,
-    category
+    category,
+    deliveryFee,
+    productId
 }) => {
+
 
     // 🔒 Vérification propriété vitrine (on préfère l'ID si dispo, sinon le slug)
     const { ownerId, vitrineId, vitrineSlug, vitrineCategory } = await verifyVitrineOwnership(userId, providedVitrineId || providedVitrineSlug);
@@ -67,6 +70,9 @@ const createAnnonceService = async ({
         locations: typeof locations === 'string'
             ? locations.split(',').map(l => l.trim()).filter(Boolean)
             : (Array.isArray(locations) ? locations : []),
+        deliveryFee: deliveryFee || null,
+        productId: productId || null,
+
 
         // 🔍 Champs Firestore Search
         titleLower,

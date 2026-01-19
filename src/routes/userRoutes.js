@@ -17,6 +17,10 @@ const {
     getPrivateUserController
 } = userControllers;
 
+// 🔔 Contrôleurs de notification
+const getUserNotificationTokensController = require('../controllers/userControllers/getUserNotificationTokensController');
+const registerNotificationTokenController = require('../controllers/userControllers/registerNotificationTokenController');
+
 // 1️⃣ Enregistrer un utilisateur (POST /)
 Router.post(
     '/',
@@ -61,6 +65,19 @@ Router.post(
 Router.get(
     '/:username',
     getPublicUserController
+);
+
+// 🔔 7️⃣ Enregistrer un token de notification (POST /notifications/register)
+Router.post(
+    '/notifications/register',
+    authMiddleware,
+    registerNotificationTokenController
+);
+
+// 🔔 8️⃣ Récupérer les tokens de notification d'un utilisateur (GET /:userId/notifications)
+Router.get(
+    '/:userId/notifications',
+    getUserNotificationTokensController
 );
 
 module.exports = Router;

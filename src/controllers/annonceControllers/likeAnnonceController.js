@@ -1,4 +1,5 @@
 const likeAnnonceService = require('../../services/annonceServices/likeAnnonceService');
+const { invalidateAnnoncesCache } = require('../../utils/cache');
 
 const likeAnnonceController = async (req, res) => {
     console.log("--> [Controller] likeAnnonceController HIT");
@@ -14,6 +15,9 @@ const likeAnnonceController = async (req, res) => {
 
         console.log(`--> [Controller] Adding like to slug: ${slug}`);
         const annonce = await likeAnnonceService(slug);
+
+        // 🔔 Invalidation du cache des annonces
+        invalidateAnnoncesCache();
 
         return res.status(200).json({
             success: true,

@@ -13,6 +13,9 @@ const cacheMiddleware = require('../middlewares/cacheMiddleware');
 const createAnnonceController = require('../controllers/annonceControllers/createAnnonceController');
 const updateAnnonceController = require('../controllers/annonceControllers/updateAnnonceController');
 const deleteAnnonceController = require('../controllers/annonceControllers/deleteAnnonceController');
+const updateAnnoncesByProductController = require('../controllers/annonceControllers/updateAnnoncesByProductController');
+const deleteAnnoncesByProductController = require('../controllers/annonceControllers/deleteAnnoncesByProductController');
+
 const getAnnonceBySlugController = require('../controllers/annonceControllers/getAnnonceBySlugController');
 const getAnnoncesByVitrineController = require('../controllers/annonceControllers/getAnnoncesByVitrineController');
 const getFeedController = require('../controllers/annonceControllers/getFeedController');
@@ -25,7 +28,10 @@ router.get('/feed', cacheMiddleware, getFeedController);  // Récupérer le feed
 router.get('/vitrine/:vitrineIdOrSlug', cacheMiddleware, getAnnoncesByVitrineController);  // Récupérer toutes les annonces d'une vitrine
 router.post('/', authMiddleware, uploadMiddleware.array('images', 10), imageUploadInterceptor('annonces'), createAnnonceController);   // Créer une annonce
 router.patch('/:slug', authMiddleware, uploadMiddleware.array('images', 10), imageUploadInterceptor('annonces'), updateAnnonceController);  // Mettre à jour une annonce
+router.patch('/by-product/:productId', authMiddleware, updateAnnoncesByProductController); // Sync M2 -> M1
+router.delete('/by-product/:productId', authMiddleware, deleteAnnoncesByProductController); // Sync M2 -> M1 (Suppression)
 router.delete('/:slug', authMiddleware, deleteAnnonceController);  // Supprimer une annonce
+
 
 // Routes de likes (publiques - pas d'authentification requise)
 router.post('/:slug/like', likeAnnonceController);  // Ajouter un like à une annonce
