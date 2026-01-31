@@ -27,7 +27,24 @@ const imageUploadInterceptor = (folder = 'annonces') => {
             if (req.files && Array.isArray(req.files) && req.files.length > 0) {
                 const urls = await Promise.all(req.files.map(file => imageStorage.upload(file, folder)));
                 const validUrls = urls.filter(Boolean);
-                req.body.images = (req.body.images || []).concat(validUrls);
+
+                // Filtrer les URIs locales
+                let existingImages = req.body.images;
+                if (typeof existingImages === 'string') {
+                    try { existingImages = JSON.parse(existingImages); } catch (e) { existingImages = [existingImages]; }
+                }
+
+                if (Array.isArray(existingImages)) {
+                    existingImages = existingImages.filter(img =>
+                        typeof img === 'string' &&
+                        !img.startsWith('file://') && !img.startsWith('content://') &&
+                        !img.startsWith('blob:') && !img.startsWith('data:')
+                    );
+                } else {
+                    existingImages = [];
+                }
+
+                req.body.images = existingImages.concat(validUrls);
             }
             // Cas 2: req.files est un Objet (upload.fields) - ex: { logo: [...], coverImage: [...] }
             else if (req.files && typeof req.files === 'object') {
@@ -35,13 +52,19 @@ const imageUploadInterceptor = (folder = 'annonces') => {
                 for (const field of fields) {
                     const files = req.files[field];
                     if (files && files.length > 0) {
-                        // En général on attend un seul fichier par champ pour logo/cover
                         const file = files[0];
                         const url = await imageStorage.upload(file, folder);
                         if (url) {
                             req.body[field] = url;
-                            // Optionnel: ajouter à req.body.images si besoin de trace globale
-                            // req.body.images = (req.body.images || []).concat([url]);
+                        }
+                    } else {
+                        // Si pas de nouveau fichier mais une URI locale est présente dans le body, on la retire
+                        const bodyValue = req.body[field];
+                        if (typeof bodyValue === 'string' && (
+                            bodyValue.startsWith('file://') || bodyValue.startsWith('content://') ||
+                            bodyValue.startsWith('blob:') || bodyValue.startsWith('data:')
+                        )) {
+                            delete req.body[field];
                         }
                     }
                 }
