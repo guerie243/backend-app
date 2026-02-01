@@ -22,6 +22,21 @@ const imageUploadInterceptor = (folder = 'annonces') => {
             return next();
         }
 
+        // --- SANITIZATION ADDED ---
+        // Clean req.body of any "empty object" strings or objects that might have slipped through
+        const imageFields = ['logo', 'coverImage', 'banner', 'avatar'];
+        imageFields.forEach(field => {
+            if (req.body[field]) {
+                const val = req.body[field];
+                // Remove if it is literally "{}" or "[object Object]" or an empty object
+                if (val === "{}" || val === "[object Object]" || (typeof val === 'object' && Object.keys(val).length === 0)) {
+                    console.warn(`[imageUploadInterceptor] Removed garbage value for field '${field}':`, val);
+                    delete req.body[field];
+                }
+            }
+        });
+        // --------------------------
+
         try {
             // Cas 1: req.files est un Tableau (upload.array)
             if (req.files && Array.isArray(req.files) && req.files.length > 0) {
