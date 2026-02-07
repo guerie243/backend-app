@@ -40,6 +40,15 @@ Router.patch(
     updateUserController
 );
 
+// 🔔 2.5️⃣ Mettre à jour les tokens de notification (PATCH /tokens)
+const updateTokensController = require('../controllers/userControllers/updateTokensController');
+
+Router.patch(
+    '/tokens',
+    authMiddleware,
+    updateTokensController
+);
+
 // 3️⃣ Supprimer un utilisateur (DELETE /)
 Router.delete(
     '/',
