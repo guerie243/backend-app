@@ -7,53 +7,45 @@ const UserModel = require('../../models/userModel');
  */
 const updateTokensController = async (req, res) => {
     try {
-        const userId = req.user._id; // Depuis authMiddleware
+        const userId = req.user.userId; // Depuis authMiddleware (c'est .userId et non ._id)
         const { firebaseToken, webPushSubscription } = req.body;
 
+        if (!userId) {
+            return res.status(401).json({
+                success: false,
+                message: 'Utilisateur non identifié'
+            });
+        }
+
         console.log('[updateTokensController] userId:', userId);
-        console.log('[updateTokensController] firebaseToken:', firebaseToken);
-        console.log('[updateTokensController] webPushSubscription:', webPushSubscription);
 
-        const updates = {};
+        // Mises à jour séquentielles via UserModel.addNotificationToken
+        const promises = [];
 
-        // Ajouter Firebase token s'il est fourni
         if (firebaseToken) {
-            const user = await UserModel.findById(userId);
-            if (!user.firebaseTokens.includes(firebaseToken)) {
-                updates.$addToSet = { firebaseTokens: firebaseToken };
-            }
+            console.log('[updateTokensController] Ajout Firebase token');
+            promises.push(UserModel.addNotificationToken(userId, 'firebase', firebaseToken));
         }
 
-        // Ajouter Web Push subscription s'il est fourni
         if (webPushSubscription && typeof webPushSubscription === 'object') {
-            const user = await UserModel.findById(userId);
-            // Vérifier si cette souscription existe déjà (par endpoint)
-            const exists = user.webPushSubscriptions.some(
-                sub => sub.endpoint === webPushSubscription.endpoint
-            );
-            if (!exists) {
-                if (!updates.$addToSet) updates.$addToSet = {};
-                updates.$addToSet.webPushSubscriptions = webPushSubscription;
-                console.log('[updateTokensController] Ajout de la subscription Web Push');
-            } else {
-                console.log('[updateTokensController] Subscription Web Push déjà existante');
-            }
+            console.log('[updateTokensController] Ajout Web Push subscription');
+            promises.push(UserModel.addNotificationToken(userId, 'webpush', webPushSubscription));
         }
 
-        // Mettre à jour l'utilisateur si des modifications existent
-        if (Object.keys(updates).length > 0) {
-            await UserModel.findByIdAndUpdate(userId, updates);
+        if (promises.length > 0) {
+            await Promise.all(promises);
             console.log('[updateTokensController] Tokens mis à jour avec succès');
         } else {
-            console.log('[updateTokensController] Aucune mise à jour nécessaire');
+            console.log('[updateTokensController] Aucun token fourni');
         }
 
-        const updatedUser = await UserModel.findById(userId);
+        // Récupérer les tokens mis à jour pour confirmation
+        const updatedTokens = await UserModel.getNotificationTokens(userId);
 
         res.status(200).json({
             success: true,
             message: 'Tokens mis à jour',
-            user: updatedUser
+            tokens: updatedTokens
         });
     } catch (error) {
         console.error('[updateTokensController] Erreur:', error);
