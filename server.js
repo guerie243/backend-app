@@ -28,6 +28,7 @@ app.use(express.urlencoded({ extended: true }));
 const userRoutes = require('./src/routes/userRoutes');
 const vitrineRoutes = require('./src/routes/vitrineRoutes');
 const annonceRoutes = require('./src/routes/annonceRoutes');
+const syncRoutes = require('./src/routes/syncRoutes');
 
 // Création d'un routeur API pour regrouper toutes les routes
 const apiRouter = express.Router();
@@ -36,6 +37,7 @@ const apiRouter = express.Router();
 apiRouter.use('/vitrines', vitrineRoutes); // Routes des vitrines
 apiRouter.use('/users', userRoutes);       // Routes des utilisateurs
 apiRouter.use('/annonces', annonceRoutes); // Routes des annonces
+apiRouter.use('/sync', syncRoutes);         // Routes de synchronisation
 
 // Montage du routeur API sur '/' et '/api' pour gérer les différentes configurations de Base URL
 app.use('/', apiRouter);
